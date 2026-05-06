@@ -1,0 +1,410 @@
+:root {
+  color-scheme: light;
+  --bg: #f4f1ea;
+  --ink: #10201f;
+  --muted: #65706d;
+  --line: #d7d1c4;
+  --panel: #fffdf8;
+  --accent: #0f6d63;
+  --accent-strong: #12312f;
+  --accent-soft: #d7ebe5;
+  --danger: #b63332;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.app-shell {
+  width: min(100%, 720px);
+  margin: 0 auto;
+  padding: max(18px, env(safe-area-inset-top)) 16px max(28px, env(safe-area-inset-bottom));
+}
+
+.topbar,
+.section-head,
+.dialog-head,
+.dialog-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.backup-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.backup-actions .text-button {
+  border: 1px solid var(--line);
+  background: white;
+}
+
+.topbar {
+  margin-bottom: 18px;
+}
+
+.eyebrow {
+  margin: 0 0 4px;
+  color: var(--accent);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: 1.7rem;
+  line-height: 1.05;
+}
+
+h2 {
+  margin-bottom: 0;
+  font-size: 1.05rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.metric,
+.entry-panel,
+.settings-dialog {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  box-shadow: 0 10px 30px rgba(16, 32, 31, 0.06);
+}
+
+.metric {
+  padding: 14px;
+}
+
+.metric span,
+.preview span,
+label,
+.hint {
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.metric strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.35rem;
+}
+
+.metric.primary {
+  background: var(--accent-strong);
+  color: white;
+  border-color: var(--accent-strong);
+}
+
+.metric.primary span {
+  color: #c8e6df;
+}
+
+.entry-panel {
+  padding: 16px;
+}
+
+.amount-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 2px solid var(--accent);
+  margin: 7px 0 14px;
+}
+
+.amount-row input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 2.35rem;
+  font-weight: 800;
+}
+
+.amount-row span {
+  color: var(--muted);
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+label {
+  display: grid;
+  gap: 6px;
+  font-weight: 700;
+}
+
+input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  color: var(--ink);
+  padding: 10px 12px;
+}
+
+.preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.preview div {
+  border-radius: 8px;
+  background: var(--accent-soft);
+  padding: 12px;
+}
+
+.preview strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 1.2rem;
+}
+
+.tax-breakdown,
+.detail-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.tax-breakdown {
+  grid-template-columns: 1fr;
+  margin: 0 0 14px;
+}
+
+.tax-breakdown div,
+.detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 10px 12px;
+}
+
+.tax-breakdown span,
+.detail-row span {
+  color: var(--muted);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.tax-breakdown strong,
+.detail-row strong {
+  white-space: nowrap;
+}
+
+.primary-button,
+.text-button,
+.icon-button,
+.tab {
+  border: 0;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.primary-button {
+  width: 100%;
+  min-height: 48px;
+  background: var(--accent);
+  color: white;
+  font-weight: 800;
+}
+
+.text-button {
+  min-height: 40px;
+  background: transparent;
+  color: var(--accent);
+  font-weight: 800;
+  padding: 0 10px;
+}
+
+.text-button.danger {
+  color: var(--danger);
+}
+
+.icon-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 1px solid var(--line);
+  font-size: 1.2rem;
+}
+
+.icon-button.small {
+  width: 32px;
+  height: 32px;
+  flex-basis: 32px;
+  color: var(--danger);
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #e9e2d5;
+}
+
+.tab {
+  min-height: 40px;
+  background: transparent;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.tab.active {
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 0 4px 12px rgba(16, 32, 31, 0.08);
+}
+
+.record-list {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.record,
+.empty-state,
+.detail-row {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel);
+  padding: 12px;
+}
+
+.record {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.record-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.record-title {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+}
+
+.record-title strong {
+  font-size: 1.08rem;
+}
+
+.record small,
+.empty-state {
+  color: var(--muted);
+}
+
+.tax-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  padding: 5px 9px;
+  font-weight: 800;
+}
+
+.settings-dialog {
+  width: min(calc(100% - 24px), 560px);
+  padding: 0;
+  color: var(--ink);
+}
+
+.settings-dialog::backdrop {
+  background: rgba(16, 32, 31, 0.36);
+}
+
+.settings-dialog form {
+  display: grid;
+  gap: 14px;
+  padding: 16px;
+}
+
+.toggle {
+  display: flex;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 10px;
+  color: var(--ink);
+}
+
+.toggle input {
+  width: 22px;
+  min-height: 22px;
+}
+
+.hint {
+  margin: 0;
+  line-height: 1.45;
+}
+
+@media (min-width: 620px) {
+  .summary-grid {
+    grid-template-columns: 1.15fr 1fr 1fr;
+  }
+
+  .field-row {
+    grid-template-columns: 0.8fr 1.2fr;
+  }
+
+  .tax-breakdown {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+}
