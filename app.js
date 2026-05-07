@@ -1,6 +1,6 @@
 const STORAGE_KEY = "tax-set-aside-v1";
 const AUTH_KEY = "tax-set-aside-auth-v1";
-const APP_VERSION = "v0.1.0";
+const APP_VERSION = "v0.2.0";
 
 const defaultState = {
   settings: {
@@ -32,10 +32,16 @@ const els = {
   yearNet: document.querySelector("#yearNet"),
   totalIncome: document.querySelector("#totalIncome"),
   totalTax: document.querySelector("#totalTax"),
+  totalProfit: document.querySelector("#totalProfit"),
+  totalSocialBase: document.querySelector("#totalSocialBase"),
   totalGpm: document.querySelector("#totalGpm"),
   totalPsd: document.querySelector("#totalPsd"),
   totalVsd: document.querySelector("#totalVsd"),
   totalNet: document.querySelector("#totalNet"),
+  recordCount: document.querySelector("#recordCount"),
+  activeMonths: document.querySelector("#activeMonths"),
+  averageMonth: document.querySelector("#averageMonth"),
+  largestRecord: document.querySelector("#largestRecord"),
   settingsButton: document.querySelector("#settingsButton"),
   settingsDialog: document.querySelector("#settingsDialog"),
   aboutDialog: document.querySelector("#aboutDialog"),
@@ -56,6 +62,11 @@ const els = {
   saveSettingsButton: document.querySelector("#saveSettingsButton"),
   clearButton: document.querySelector("#clearButton"),
   exportButton: document.querySelector("#exportButton"),
+  searchInput: document.querySelector("#searchInput"),
+  yearFilter: document.querySelector("#yearFilter"),
+  monthFilter: document.querySelector("#monthFilter"),
+  clearFiltersButton: document.querySelector("#clearFiltersButton"),
+  filteredCount: document.querySelector("#filteredCount"),
   backupButton: document.querySelector("#backupButton"),
   restoreButton: document.querySelector("#restoreButton"),
   restoreInput: document.querySelector("#restoreInput"),
@@ -68,6 +79,11 @@ const els = {
 let state = loadState();
 let editingRecordId = null;
 let toastTimer = null;
+let filters = {
+  query: "",
+  year: String(state.settings.taxYear),
+  month: ""
+};
 
 function loadAuth() {
   try {
@@ -242,6 +258,46 @@ function yearlyCalc(records = state.records) {
   return calculateForIncome(income);
 }
 
+function yearlyRecords() {
+  const currentYear = String(state.settings.taxYear);
+  return state.records.filter((record) => record.date?.startsWith(currentYear));
+}
+
+function availableYears() {
+  const years = new Set(state.records.map((record) => record.date?.slice(0, 4)).filter(Boolean));
+  years.add(String(state.settings.taxYear));
+  return [...years].sort((a, b) => b.localeCompare(a));
+}
+
+function syncFilterOptions() {
+  const selectedYear = filters.year || String(state.settings.taxYear);
+  const years = availableYears();
+  els.yearFilter.innerHTML = years
+    .map((year) => `<option value="${year}">${year}</option>`)
+    .join("");
+  els.yearFilter.value = years.includes(selectedYear) ? selectedYear : String(state.settings.taxYear);
+  filters.year = els.yearFilter.value;
+  els.monthFilter.value = filters.month;
+  els.searchInput.value = filters.query;
+}
+
+function matchesFilters(record) {
+  const query = filters.query.trim().toLowerCase();
+  const recordMonth = record.date?.slice(5, 7);
+  const recordYear = record.date?.slice(0, 4);
+  const searchable = [record.note, record.date, String(record.amount).replace(".", ","), String(record.amount)]
+    .join(" ")
+    .toLowerCase();
+
+  return (!filters.year || recordYear === filters.year)
+    && (!filters.month || recordMonth === filters.month)
+    && (!query || searchable.includes(query));
+}
+
+function filteredRecords() {
+  return state.records.filter(matchesFilters);
+}
+
 function proportionalTaxForRecord(record) {
   return calculateForIncome(record.amount).tax;
 }
@@ -258,19 +314,31 @@ function updatePreview() {
 
 function renderSummary() {
   const calc = yearlyCalc();
+  const records = yearlyRecords();
+  const months = new Set(records.map((record) => record.date?.slice(0, 7)).filter(Boolean));
+  const largest = records.reduce((max, record) => Math.max(max, record.amount), 0);
+  const average = months.size ? calc.income / months.size : 0;
   els.yearIncome.textContent = money(calc.income);
   els.yearTax.textContent = money(calc.tax);
   els.yearNet.textContent = money(calc.net);
   els.totalIncome.textContent = money(calc.income);
   els.totalTax.textContent = money(calc.tax);
+  els.totalProfit.textContent = money(calc.profit);
+  els.totalSocialBase.textContent = money(calc.socialBase);
   els.totalGpm.textContent = money(calc.gpm);
   els.totalPsd.textContent = money(calc.psd);
   els.totalVsd.textContent = money(calc.vsd);
   els.totalNet.textContent = money(calc.net);
+  els.recordCount.textContent = String(records.length);
+  els.activeMonths.textContent = String(months.size);
+  els.averageMonth.textContent = money(average);
+  els.largestRecord.textContent = money(largest);
 }
 
 function renderRecords() {
-  const records = [...state.records].sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  const records = filteredRecords().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  els.filteredCount.textContent = `${records.length} ${recordWord(records.length)}`;
+  els.emptyState.textContent = state.records.length ? "Pagal filtrus įrašų nėra." : "Įvesk pirmą gautą sumą.";
   els.emptyState.hidden = records.length > 0;
   els.recordList.innerHTML = records.map((record) => {
     const tax = proportionalTaxForRecord(record);
@@ -296,7 +364,7 @@ function renderRecords() {
 
 function renderMonths() {
   const groups = new Map();
-  for (const record of state.records) {
+  for (const record of filteredRecords()) {
     const key = record.date.slice(0, 7);
     groups.set(key, (groups.get(key) || 0) + record.amount);
   }
@@ -329,7 +397,16 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function recordWord(count) {
+  const last = count % 10;
+  const lastTwo = count % 100;
+  if (last === 1 && lastTwo !== 11) return "įrašas";
+  if (last >= 2 && last <= 9 && (lastTwo < 10 || lastTwo >= 20)) return "įrašai";
+  return "įrašų";
+}
+
 function render() {
+  syncFilterOptions();
   renderSummary();
   renderRecords();
   renderMonths();
@@ -342,15 +419,19 @@ function addRecord() {
     els.amount.focus();
     return;
   }
+  const date = els.date.value || isoToday();
 
   state.records.push({
     id: crypto.randomUUID(),
     amount,
-    date: els.date.value || isoToday(),
+    date,
     note: els.note.value.trim(),
     createdAt: new Date().toISOString()
   });
 
+  filters.year = date.slice(0, 4);
+  filters.month = "";
+  filters.query = "";
   els.amount.value = "";
   els.note.value = "";
   saveState();
@@ -384,6 +465,7 @@ function saveEditedRecord() {
   record.date = els.editDate.value || isoToday();
   record.note = els.editNote.value.trim();
   record.updatedAt = new Date().toISOString();
+  filters.year = record.date.slice(0, 4);
   saveState();
   render();
   els.editDialog.close();
@@ -400,6 +482,8 @@ function saveSettings() {
   state.settings = {
     taxYear: Number(els.taxYear.value) || 2026
   };
+  filters.year = String(state.settings.taxYear);
+  filters.month = "";
   saveState();
   render();
   showToast("Nustatymai išsaugoti.");
@@ -508,6 +592,27 @@ els.editAmount.addEventListener("keydown", (event) => {
 });
 els.saveSettingsButton.addEventListener("click", saveSettings);
 els.exportButton.addEventListener("click", exportCsv);
+els.searchInput.addEventListener("input", () => {
+  filters.query = els.searchInput.value;
+  render();
+});
+els.yearFilter.addEventListener("change", () => {
+  filters.year = els.yearFilter.value;
+  render();
+});
+els.monthFilter.addEventListener("change", () => {
+  filters.month = els.monthFilter.value;
+  render();
+});
+els.clearFiltersButton.addEventListener("click", () => {
+  filters = {
+    query: "",
+    year: String(state.settings.taxYear),
+    month: ""
+  };
+  render();
+  showToast("Filtrai išvalyti.");
+});
 els.backupButton.addEventListener("click", exportBackup);
 els.restoreButton.addEventListener("click", () => els.restoreInput.click());
 els.restoreInput.addEventListener("change", () => restoreBackup(els.restoreInput.files[0]));
