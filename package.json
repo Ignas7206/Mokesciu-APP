@@ -1,0 +1,20 @@
+{
+  "name": "mokesciu-atsidejimas",
+  "version": "0.6.0",
+  "private": true,
+  "description": "Individualios veiklos pajamu ir preliminariu mokesciu atsidejimo programele.",
+  "scripts": {
+    "check": "node --check app.js",
+    "prepare:android": "node scripts/prepare-capacitor.mjs",
+    "cap:add:android": "npm run prepare:android && npx cap add android",
+    "cap:sync": "npm run prepare:android && npx cap sync android",
+    "cap:open": "npx cap open android"
+  },
+  "dependencies": {
+    "@capacitor/android": "^8.0.0",
+    "@capacitor/core": "^8.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^8.0.0"
+  }
+}
