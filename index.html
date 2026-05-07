@@ -159,6 +159,7 @@
           <h3>Informacija</h3>
           <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
           <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
+          <p class="hint" id="versionText">Versija v0.1.0</p>
         </div>
 
         <div class="dialog-actions">
@@ -183,6 +184,33 @@
         <button class="primary-button" value="default">Supratau</button>
       </form>
     </dialog>
+
+    <dialog class="settings-dialog" id="editDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <h2>Redaguoti įrašą</h2>
+          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
+        </div>
+        <label>
+          Gauta suma
+          <input id="editAmount" inputmode="decimal" autocomplete="off">
+        </label>
+        <div class="field-row">
+          <label>
+            Data
+            <input id="editDate" type="date">
+          </label>
+          <label>
+            Pastaba
+            <input id="editNote" type="text">
+          </label>
+        </div>
+        <p class="hint error-text" id="editMessage"></p>
+        <button class="primary-button" id="saveEditButton" type="button">Išsaugoti pakeitimus</button>
+      </form>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 
     <script src="app.js"></script>
   </body>
