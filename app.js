@@ -1,4 +1,5 @@
 const STORAGE_KEY = "tax-set-aside-v1";
+const AUTH_KEY = "tax-set-aside-auth-v1";
 
 const defaultState = {
   settings: {
@@ -8,6 +9,11 @@ const defaultState = {
 };
 
 const els = {
+  appShell: document.querySelector("#appShell"),
+  lockScreen: document.querySelector("#lockScreen"),
+  pinInput: document.querySelector("#pinInput"),
+  pinMessage: document.querySelector("#pinMessage"),
+  unlockButton: document.querySelector("#unlockButton"),
   amount: document.querySelector("#amount"),
   date: document.querySelector("#date"),
   note: document.querySelector("#note"),
@@ -31,7 +37,13 @@ const els = {
   totalNet: document.querySelector("#totalNet"),
   settingsButton: document.querySelector("#settingsButton"),
   settingsDialog: document.querySelector("#settingsDialog"),
+  aboutDialog: document.querySelector("#aboutDialog"),
   taxYear: document.querySelector("#taxYear"),
+  newPin: document.querySelector("#newPin"),
+  savePinButton: document.querySelector("#savePinButton"),
+  removePinButton: document.querySelector("#removePinButton"),
+  pinStatus: document.querySelector("#pinStatus"),
+  aboutButton: document.querySelector("#aboutButton"),
   saveSettingsButton: document.querySelector("#saveSettingsButton"),
   clearButton: document.querySelector("#clearButton"),
   exportButton: document.querySelector("#exportButton"),
@@ -45,6 +57,99 @@ const els = {
 };
 
 let state = loadState();
+
+function loadAuth() {
+  try {
+    return JSON.parse(localStorage.getItem(AUTH_KEY));
+  } catch {
+    return null;
+  }
+}
+
+function saveAuth(auth) {
+  if (!auth) {
+    localStorage.removeItem(AUTH_KEY);
+    return;
+  }
+  localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+}
+
+function randomSalt() {
+  const bytes = new Uint8Array(16);
+  crypto.getRandomValues(bytes);
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+async function hashPin(pin, salt) {
+  const input = new TextEncoder().encode(`${salt}:${pin}`);
+  const digest = await crypto.subtle.digest("SHA-256", input);
+  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
+}
+
+function hasPin() {
+  const auth = loadAuth();
+  return Boolean(auth?.salt && auth?.hash);
+}
+
+async function verifyPin(pin) {
+  const auth = loadAuth();
+  if (!auth?.salt || !auth?.hash) return true;
+  const hash = await hashPin(pin, auth.salt);
+  return hash === auth.hash;
+}
+
+function refreshPinStatus() {
+  els.pinStatus.textContent = hasPin() ? "PIN užraktas įjungtas." : "PIN neužstatytas.";
+  els.removePinButton.disabled = !hasPin();
+}
+
+function showLockIfNeeded() {
+  if (!hasPin()) {
+    els.lockScreen.hidden = true;
+    els.appShell.removeAttribute("aria-hidden");
+    document.body.classList.remove("locked");
+    return;
+  }
+  els.lockScreen.hidden = false;
+  els.appShell.setAttribute("aria-hidden", "true");
+  document.body.classList.add("locked");
+  els.pinInput.focus();
+}
+
+async function unlock() {
+  const pin = els.pinInput.value.trim();
+  if (!pin) return;
+  const ok = await verifyPin(pin);
+  if (!ok) {
+    els.pinMessage.textContent = "Neteisingas PIN.";
+    els.pinInput.value = "";
+    els.pinInput.focus();
+    return;
+  }
+  els.pinInput.value = "";
+  els.pinMessage.textContent = "";
+  els.lockScreen.hidden = true;
+  els.appShell.removeAttribute("aria-hidden");
+  document.body.classList.remove("locked");
+}
+
+async function savePin() {
+  const pin = els.newPin.value.trim();
+  if (pin.length < 4 || !/^\d+$/.test(pin)) {
+    els.pinStatus.textContent = "PIN turi būti bent 4 skaičiai.";
+    return;
+  }
+  const salt = randomSalt();
+  saveAuth({ salt, hash: await hashPin(pin, salt), updatedAt: new Date().toISOString() });
+  els.newPin.value = "";
+  refreshPinStatus();
+}
+
+function removePin() {
+  saveAuth(null);
+  els.newPin.value = "";
+  refreshPinStatus();
+}
 
 function loadState() {
   try {
@@ -233,6 +338,7 @@ function addRecord() {
 
 function openSettings() {
   els.taxYear.value = state.settings.taxYear;
+  refreshPinStatus();
   els.settingsDialog.showModal();
 }
 
@@ -322,12 +428,21 @@ function restoreBackup(file) {
 }
 
 els.date.value = isoToday();
+refreshPinStatus();
+showLockIfNeeded();
+els.unlockButton.addEventListener("click", unlock);
+els.pinInput.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") unlock();
+});
 els.amount.addEventListener("input", updatePreview);
 els.addButton.addEventListener("click", addRecord);
 els.amount.addEventListener("keydown", (event) => {
   if (event.key === "Enter") addRecord();
 });
 els.settingsButton.addEventListener("click", openSettings);
+els.aboutButton.addEventListener("click", () => els.aboutDialog.showModal());
+els.savePinButton.addEventListener("click", savePin);
+els.removePinButton.addEventListener("click", removePin);
 els.saveSettingsButton.addEventListener("click", saveSettings);
 els.exportButton.addEventListener("click", exportCsv);
 els.backupButton.addEventListener("click", exportBackup);
