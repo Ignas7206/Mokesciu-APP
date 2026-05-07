@@ -97,6 +97,36 @@ select {
   margin-bottom: 18px;
 }
 
+.status-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: -8px 0 14px;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  padding: 4px 9px;
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.status-pill.offline {
+  background: #f4dddd;
+  color: var(--danger);
+}
+
+.status-pill.subtle {
+  background: white;
+  color: var(--muted);
+}
+
 .eyebrow {
   margin: 0 0 4px;
   color: var(--accent);
@@ -208,6 +238,18 @@ label,
   gap: 10px;
 }
 
+.quick-date-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.quick-date-row .text-button {
+  border: 1px solid var(--line);
+  background: white;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -254,7 +296,7 @@ select {
 }
 
 .tax-breakdown,
-.detail-grid {
+detail-grid {
   display: grid;
   gap: 8px;
 }
