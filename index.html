@@ -9,7 +9,18 @@
     <link rel="stylesheet" href="styles.css">
   </head>
   <body>
-    <main class="app-shell">
+    <section class="lock-screen" id="lockScreen" hidden>
+      <div class="lock-panel">
+        <p class="eyebrow">Apsauga</p>
+        <h1>Mokesčių atsidėjimas</h1>
+        <label for="pinInput">PIN kodas</label>
+        <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Įvesk PIN">
+        <p class="hint error-text" id="pinMessage"></p>
+        <button class="primary-button" id="unlockButton" type="button">Atrakinti</button>
+      </div>
+    </section>
+
+    <main class="app-shell" id="appShell">
       <header class="topbar">
         <div>
           <p class="eyebrow">Individuali veikla</p>
@@ -131,10 +142,45 @@
           <input id="restoreInput" type="file" accept="application/json,.json" hidden>
         </div>
 
+        <div class="settings-block">
+          <h3>PIN užraktas</h3>
+          <label>
+            Naujas PIN
+            <input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="12" placeholder="Bent 4 skaičiai">
+          </label>
+          <div class="backup-actions">
+            <button class="text-button" id="savePinButton" type="button">Išsaugoti PIN</button>
+            <button class="text-button danger" id="removePinButton" type="button">Išjungti PIN</button>
+          </div>
+          <p class="hint" id="pinStatus">PIN neužstatytas.</p>
+        </div>
+
+        <div class="settings-block">
+          <h3>Informacija</h3>
+          <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
+          <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
+        </div>
+
         <div class="dialog-actions">
           <button class="text-button danger" id="clearButton" type="button">Išvalyti duomenis</button>
           <button class="primary-button" id="saveSettingsButton" value="default">Išsaugoti</button>
         </div>
+      </form>
+    </dialog>
+
+    <dialog class="settings-dialog" id="aboutDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <h2>Apie programėlę</h2>
+          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
+        </div>
+        <div class="info-copy">
+          <p>Programėlė skirta individualios veiklos pajamų įrašams ir preliminariam mokesčių atsidėjimui.</p>
+          <p>Šiuo metu naudojamas 30% išlaidų modelis. GPM, PSD ir VSD rodomi atskirai, kad būtų aišku, kiek atsidėti nuo gautos sumos.</p>
+          <p>Duomenys saugomi šiame įrenginyje naršyklės saugykloje. Jie nesiunčiami į serverį. Atsarginei kopijai naudok JSON eksportą nustatymuose.</p>
+          <p>Skaičiavimas yra preliminarus ir nepakeičia buhalterio ar VMI konsultacijos.</p>
+        </div>
+        <button class="primary-button" value="default">Supratau</button>
       </form>
     </dialog>
 
