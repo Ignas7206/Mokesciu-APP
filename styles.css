@@ -460,6 +460,23 @@ input {
   color: var(--danger);
 }
 
+.toast {
+  position: fixed;
+  left: 16px;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 20;
+  width: min(calc(100% - 32px), 480px);
+  margin: 0 auto;
+  border-radius: 8px;
+  background: var(--accent-strong);
+  color: white;
+  padding: 12px 14px;
+  text-align: center;
+  font-weight: 800;
+  box-shadow: 0 10px 30px rgba(16, 32, 31, 0.22);
+}
+
 @media (min-width: 620px) {
   .summary-grid {
     grid-template-columns: 1.15fr 1fr 1fr;
