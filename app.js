@@ -1,7 +1,7 @@
 const STORAGE_KEY = "tax-set-aside-v1";
 const AUTH_KEY = "tax-set-aside-auth-v1";
 const META_KEY = "tax-set-aside-meta-v1";
-const APP_VERSION = "v0.3.0";
+const APP_VERSION = "v0.4.0";
 
 const defaultState = {
   settings: {
@@ -17,6 +17,7 @@ const els = {
   pinMessage: document.querySelector("#pinMessage"),
   unlockButton: document.querySelector("#unlockButton"),
   connectionStatus: document.querySelector("#connectionStatus"),
+  storageStatus: document.querySelector("#storageStatus"),
   backupReminder: document.querySelector("#backupReminder"),
   amount: document.querySelector("#amount"),
   date: document.querySelector("#date"),
@@ -78,6 +79,8 @@ const els = {
   backupStatus: document.querySelector("#backupStatus"),
   restoreButton: document.querySelector("#restoreButton"),
   restoreInput: document.querySelector("#restoreInput"),
+  deviceStorageStatus: document.querySelector("#deviceStorageStatus"),
+  cloudSyncStatus: document.querySelector("#cloudSyncStatus"),
   recordsView: document.querySelector("#recordsView"),
   summaryView: document.querySelector("#summaryView"),
   monthsView: document.querySelector("#monthsView"),
@@ -206,6 +209,9 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  meta.lastLocalSaveAt = new Date().toISOString();
+  saveMeta();
+  renderStorageStatus();
 }
 
 function loadMeta() {
@@ -330,11 +336,10 @@ function availableYears() {
 
 function syncFilterOptions() {
   const selectedYear = filters.year || String(state.settings.taxYear);
-  const years = availableYears();
-  els.yearFilter.innerHTML = years
+  els.yearFilter.innerHTML = availableYears()
     .map((year) => `<option value="${year}">${year}</option>`)
     .join("");
-  els.yearFilter.value = years.includes(selectedYear) ? selectedYear : String(state.settings.taxYear);
+  els.yearFilter.value = availableYears().includes(selectedYear) ? selectedYear : String(state.settings.taxYear);
   filters.year = els.yearFilter.value;
   els.monthFilter.value = filters.month;
   els.searchInput.value = filters.query;
@@ -412,6 +417,25 @@ function renderBackupStatus() {
   if (needsBackup) {
     els.backupReminder.textContent = age === Infinity ? "Pasidaryk atsarginę kopiją" : `Kopija daryta prieš ${age} d.`;
   }
+}
+
+function formatSaveTime(dateText) {
+  const date = new Date(dateText);
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("lt-LT", {
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(date);
+}
+
+function renderStorageStatus() {
+  const time = formatSaveTime(meta.lastLocalSaveAt);
+  const savedText = time ? `Išsaugota telefone ${time}` : "Saugoma telefone";
+  els.storageStatus.textContent = savedText;
+  els.deviceStorageStatus.textContent = time
+    ? `Kiekvienas įrašas iškart saugomas šiame telefone. Paskutinis išsaugojimas: ${time}.`
+    : "Kiekvienas įrašas iškart saugomas šiame telefone.";
+  els.cloudSyncStatus.textContent = "Dar neprijungta. Vėliau bus galima prisijungti ir sinchronizuoti.";
 }
 
 function updateConnectionStatus() {
@@ -501,6 +525,7 @@ function render() {
   syncFilterOptions();
   renderSummary();
   renderBackupStatus();
+  renderStorageStatus();
   renderRecords();
   renderMonths();
   updatePreview();
