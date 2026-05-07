@@ -1,6 +1,7 @@
 const STORAGE_KEY = "tax-set-aside-v1";
 const AUTH_KEY = "tax-set-aside-auth-v1";
-const APP_VERSION = "v0.2.0";
+const META_KEY = "tax-set-aside-meta-v1";
+const APP_VERSION = "v0.3.0";
 
 const defaultState = {
   settings: {
@@ -15,9 +16,13 @@ const els = {
   pinInput: document.querySelector("#pinInput"),
   pinMessage: document.querySelector("#pinMessage"),
   unlockButton: document.querySelector("#unlockButton"),
+  connectionStatus: document.querySelector("#connectionStatus"),
+  backupReminder: document.querySelector("#backupReminder"),
   amount: document.querySelector("#amount"),
   date: document.querySelector("#date"),
   note: document.querySelector("#note"),
+  todayButton: document.querySelector("#todayButton"),
+  yesterdayButton: document.querySelector("#yesterdayButton"),
   previewTax: document.querySelector("#previewTax"),
   previewNet: document.querySelector("#previewNet"),
   previewGpm: document.querySelector("#previewGpm"),
@@ -58,6 +63,8 @@ const els = {
   removePinButton: document.querySelector("#removePinButton"),
   pinStatus: document.querySelector("#pinStatus"),
   aboutButton: document.querySelector("#aboutButton"),
+  whatsNewButton: document.querySelector("#whatsNewButton"),
+  whatsNewDialog: document.querySelector("#whatsNewDialog"),
   versionText: document.querySelector("#versionText"),
   saveSettingsButton: document.querySelector("#saveSettingsButton"),
   clearButton: document.querySelector("#clearButton"),
@@ -68,6 +75,7 @@ const els = {
   clearFiltersButton: document.querySelector("#clearFiltersButton"),
   filteredCount: document.querySelector("#filteredCount"),
   backupButton: document.querySelector("#backupButton"),
+  backupStatus: document.querySelector("#backupStatus"),
   restoreButton: document.querySelector("#restoreButton"),
   restoreInput: document.querySelector("#restoreInput"),
   recordsView: document.querySelector("#recordsView"),
@@ -77,6 +85,7 @@ const els = {
 };
 
 let state = loadState();
+let meta = loadMeta();
 let editingRecordId = null;
 let toastTimer = null;
 let filters = {
@@ -182,12 +191,12 @@ function removePin() {
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return {
+    return sanitizeState({
       ...defaultState,
       ...saved,
       settings: { ...defaultState.settings, ...saved?.settings },
       records: Array.isArray(saved?.records) ? saved.records : []
-    };
+    });
   } catch {
     return structuredClone(defaultState);
   }
@@ -195,6 +204,48 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function loadMeta() {
+  try {
+    return JSON.parse(localStorage.getItem(META_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveMeta() {
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
+}
+
+function sanitizeState(value) {
+  const settings = { ...defaultState.settings, ...value?.settings };
+  const records = Array.isArray(value?.records)
+    ? value.records
+        .filter((record) => Number.isFinite(Number(record.amount)) && Number(record.amount) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(record.date || ""))
+        .map((record) => ({
+          id: record.id || crypto.randomUUID(),
+          amount: Number(record.amount),
+          date: record.date,
+          note: String(record.note || ""),
+          createdAt: record.createdAt || new Date().toISOString(),
+          updatedAt: record.updatedAt
+        }))
+    : [];
+
+  return {
+    ...defaultState,
+    ...value,
+    settings,
+    records
+  };
+}
+
+function daysSince(dateText) {
+  if (!dateText) return Infinity;
+  const time = Date.parse(dateText);
+  if (!Number.isFinite(time)) return Infinity;
+  return Math.floor((Date.now() - time) / 86400000);
 }
 
 function showToast(message) {
@@ -221,6 +272,12 @@ function parseAmount(value) {
 
 function isoToday() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function isoDaysAgo(days) {
+  const date = new Date();
+  date.setDate(date.getDate() - days);
+  return date.toISOString().slice(0, 10);
 }
 
 function taxableProfit(income) {
@@ -298,6 +355,10 @@ function filteredRecords() {
   return state.records.filter(matchesFilters);
 }
 
+function hasDuplicate(amount, date) {
+  return state.records.some((record) => record.date === date && Math.abs(record.amount - amount) < 0.01);
+}
+
 function proportionalTaxForRecord(record) {
   return calculateForIncome(record.amount).tax;
 }
@@ -333,6 +394,28 @@ function renderSummary() {
   els.activeMonths.textContent = String(months.size);
   els.averageMonth.textContent = money(average);
   els.largestRecord.textContent = money(largest);
+}
+
+function renderBackupStatus() {
+  const lastBackup = meta.lastBackupAt;
+  const age = daysSince(lastBackup);
+  const hasRecords = state.records.length > 0;
+  const needsBackup = hasRecords && age >= 30;
+  const backupText = Number.isFinite(age)
+    ? `Paskutinė atsarginė kopija: prieš ${age} d.`
+    : "Atsarginė kopija dar nekurta.";
+
+  els.backupStatus.textContent = backupText;
+  els.backupReminder.hidden = !needsBackup;
+  if (needsBackup) {
+    els.backupReminder.textContent = age === Infinity ? "Pasidaryk atsarginę kopiją" : `Kopija daryta prieš ${age} d.`;
+  }
+}
+
+function updateConnectionStatus() {
+  const online = navigator.onLine;
+  els.connectionStatus.textContent = online ? "Online" : "Offline";
+  els.connectionStatus.classList.toggle("offline", !online);
 }
 
 function renderRecords() {
@@ -408,6 +491,7 @@ function recordWord(count) {
 function render() {
   syncFilterOptions();
   renderSummary();
+  renderBackupStatus();
   renderRecords();
   renderMonths();
   updatePreview();
@@ -420,6 +504,9 @@ function addRecord() {
     return;
   }
   const date = els.date.value || isoToday();
+  if (hasDuplicate(amount, date) && !confirm("Tą pačią dieną jau yra tokia pati suma. Vis tiek pridėti?")) {
+    return;
+  }
 
   state.records.push({
     id: crypto.randomUUID(),
@@ -491,7 +578,7 @@ function saveSettings() {
 
 function exportCsv() {
   const header = ["data", "suma", "gpm", "psd", "vsd", "mokesciai_is_viso", "pastaba"];
-  const rows = state.records
+  const rows = filteredRecords()
     .sort((a, b) => a.date.localeCompare(b.date))
     .map((record) => {
       const calc = calculateForIncome(record.amount);
@@ -513,7 +600,7 @@ function exportCsv() {
   link.download = `mokesciai-${state.settings.taxYear}.csv`;
   link.click();
   URL.revokeObjectURL(url);
-  showToast("CSV eksportas paruoštas.");
+  showToast(`CSV eksportas paruoštas: ${rows.length} ${recordWord(rows.length)}.`);
 }
 
 function downloadJson(filename, data) {
@@ -527,12 +614,16 @@ function downloadJson(filename, data) {
 }
 
 function exportBackup() {
+  meta.lastBackupAt = new Date().toISOString();
+  saveMeta();
   downloadJson(`mokesciai-backup-${new Date().toISOString().slice(0, 10)}.json`, {
     app: "tax-set-aside",
     version: 1,
     exportedAt: new Date().toISOString(),
+    appVersion: APP_VERSION,
     state
   });
+  renderBackupStatus();
   showToast("Atsarginė kopija sukurta.");
 }
 
@@ -556,10 +647,11 @@ function restoreBackup(file) {
         settings: { ...defaultState.settings, ...data.state.settings },
         records: data.state.records
       };
+      state = sanitizeState(state);
       saveState();
       render();
       els.settingsDialog.close();
-      showToast("Kopija atkurta.");
+      showToast(`Kopija atkurta: ${state.records.length} ${recordWord(state.records.length)}.`);
     } catch {
       alert("Nepavyko atkurti kopijos. Patikrink, ar pasirinktas teisingas JSON failas.");
     } finally {
@@ -571,8 +663,15 @@ function restoreBackup(file) {
 
 els.date.value = isoToday();
 els.versionText.textContent = `Versija ${APP_VERSION}`;
+saveState();
 refreshPinStatus();
+updateConnectionStatus();
 showLockIfNeeded();
+if (meta.lastSeenVersion !== APP_VERSION) {
+  meta.lastSeenVersion = APP_VERSION;
+  saveMeta();
+  setTimeout(() => els.whatsNewDialog.showModal(), 300);
+}
 els.unlockButton.addEventListener("click", unlock);
 els.pinInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") unlock();
@@ -582,8 +681,17 @@ els.addButton.addEventListener("click", addRecord);
 els.amount.addEventListener("keydown", (event) => {
   if (event.key === "Enter") addRecord();
 });
+els.todayButton.addEventListener("click", () => {
+  els.date.value = isoToday();
+  showToast("Data pakeista į šiandien.");
+});
+els.yesterdayButton.addEventListener("click", () => {
+  els.date.value = isoDaysAgo(1);
+  showToast("Data pakeista į vakar.");
+});
 els.settingsButton.addEventListener("click", openSettings);
 els.aboutButton.addEventListener("click", () => els.aboutDialog.showModal());
+els.whatsNewButton.addEventListener("click", () => els.whatsNewDialog.showModal());
 els.savePinButton.addEventListener("click", savePin);
 els.removePinButton.addEventListener("click", removePin);
 els.saveEditButton.addEventListener("click", saveEditedRecord);
@@ -631,13 +739,17 @@ els.recordList.addEventListener("click", (event) => {
   showToast("Įrašas ištrintas.");
 });
 els.clearButton.addEventListener("click", () => {
-  if (!confirm("Išvalyti visus įrašus?")) return;
+  if (!confirm("Išvalyti visus įrašus? Prieš tai verta pasidaryti atsarginę kopiją.")) return;
+  const answer = prompt("Įvesk ISVALYTI, jei tikrai nori pašalinti visus įrašus.");
+  if (answer !== "ISVALYTI") return;
   state.records = [];
   saveState();
   render();
   els.settingsDialog.close();
   showToast("Duomenys išvalyti.");
 });
+window.addEventListener("online", updateConnectionStatus);
+window.addEventListener("offline", updateConnectionStatus);
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
     els.tabs.forEach((item) => item.classList.toggle("active", item === tab));
