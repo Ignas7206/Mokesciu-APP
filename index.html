@@ -32,6 +32,7 @@
       </header>
       <div class="status-line">
         <span class="status-pill" id="connectionStatus">Prisijungta</span>
+        <span class="status-pill subtle" id="storageStatus">Saugoma telefone</span>
         <span class="status-pill subtle" id="backupReminder" hidden>Atsarginė kopija nekurta</span>
       </div>
 
@@ -184,6 +185,22 @@
           PSD 6,98% ir VSD 15,52% skaičiuojami nuo 90% likusios sumos.
         </p>
 
+        <div class="settings-block">
+          <h3>Saugojimas</h3>
+          <div class="storage-grid">
+            <article class="storage-card active">
+              <span>Telefone</span>
+              <strong>Automatinis</strong>
+              <p id="deviceStorageStatus">Kiekvienas įrašas iškart saugomas šiame telefone.</p>
+            </article>
+            <article class="storage-card">
+              <span>Debesis</span>
+              <strong>Pasirenkamas</strong>
+              <p id="cloudSyncStatus">Dar neprijungta. Vėliau bus galima prisijungti ir sinchronizuoti.</p>
+            </article>
+          </div>
+        </div>
+
         <div class="backup-actions">
           <button class="text-button" id="backupButton" type="button">Atsarginė kopija</button>
           <button class="text-button" id="restoreButton" type="button">Atkurti kopiją</button>
@@ -209,7 +226,7 @@
           <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
           <button class="text-button wide" id="whatsNewButton" type="button">Kas naujo</button>
           <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
-          <p class="hint" id="versionText">Versija v0.3.0</p>
+          <p class="hint" id="versionText">Versija v0.4.0</p>
         </div>
 
         <div class="dialog-actions">
@@ -228,7 +245,7 @@
         <div class="info-copy">
           <p>Programėlė skirta individualios veiklos pajamų įrašams ir preliminariam mokesčių atsidėjimui.</p>
           <p>Šiuo metu naudojamas 30% išlaidų modelis. GPM, PSD ir VSD rodomi atskirai, kad būtų aišku, kiek atsidėti nuo gautos sumos.</p>
-          <p>Duomenys saugomi šiame įrenginyje naršyklės saugykloje. Jie nesiunčiami į serverį. Atsarginei kopijai naudok JSON eksportą nustatymuose.</p>
+          <p>Duomenys automatiškai saugomi šiame telefone. Kol neprijungtas debesis, jie nesiunčiami į serverį. Atsarginei kopijai galima naudoti JSON eksportą nustatymuose.</p>
           <p>Skaičiavimas yra preliminarus ir nepakeičia buhalterio ar VMI konsultacijos.</p>
         </div>
         <button class="primary-button" value="default">Supratau</button>
@@ -271,6 +288,7 @@
           <p>CSV eksportas dabar eksportuoja tai, ką matai pagal filtrus.</p>
           <p>Įvestyje atsirado greiti datos mygtukai ir įspėjimas apie galimą dublikatą.</p>
           <p>Pridėtas offline indikatorius ir saugesnis visų duomenų išvalymas.</p>
+          <p>Aiškiau rodoma, kad įrašai automatiškai saugomi telefone, o debesis bus pasirenkamas vėliau.</p>
         </div>
         <button class="primary-button" value="default">Gerai</button>
       </form>
