@@ -1,26 +1,50 @@
-# Mokesčių atsidėjimo programėlė
+# Mokesciu atsidejimo programele
 
-Mobilus PWA, skirtas greitai įvesti gautas individualios veiklos pajamas ir matyti, kiek preliminariai atsidėti mokesčiams.
+Mobilus PWA ir busimas Android app'as, skirtas greitai ivesti gautas individualios veiklos pajamas ir matyti, kiek preliminariai atsideti mokesciams.
 
-## Skaičiavimas
+## Ka dabar daro
 
-Naudojama fiksuota formulė:
+- Saugo pajamu irasus telefone.
+- Rodo metine suvestine, menesiu vaizda ir kiekvieno iraso mokesciu suma.
+- Skaido preliminarius mokescius i GPM, PSD ir VSD.
+- Veikia offline per service worker cache.
+- Leidzia eksportuoti CSV ir JSON atsargine kopija.
+- Leidzia atkurti duomenis is JSON kopijos.
+- Turi PIN rezima: ijungus PIN, irasai telefone saugomi sifruotai.
+- Turi privatumo politikos puslapi ir Google Play paruostukus.
+- Paruostas Capacitor kelias Android `.aab` generavimui.
 
-- Iš pajamų atimama 30% išlaidų.
+## Skaiciavimas
+
+Naudojama laikina fiksuota formule:
+
+- Is pajamu atimama 30% islaidu.
 - GPM: 5% nuo likusios sumos.
 - PSD: 6,98% nuo 90% likusios sumos.
 - VSD: 15,52% nuo 90% likusios sumos.
 
-Neįtraukta: PVM, minimalus mėnesinis PSD, lubos, kitos metinės pajamos ir individualios išimtys.
+Neitraukta: PVM, minimalus menesinis PSD, lubos, kitos metines pajamos, realiu islaidu rezimas, pensijos kaupimo pasirinkimas ir individualios isimtys.
 
-## Duomenų saugumas
+## Duomenu saugumas
 
-Įrašai saugomi naršyklės `localStorage`, todėl jie lieka tame pačiame įrenginyje ir nėra siunčiami į serverį. Ištrynus Chrome, išvalius svetainės duomenis arba naršyklės profilį, įrašai gali dingti.
+Kol neprijungtas debesis, irasai nesiunciami i serveri. Jie saugomi tame paciame irenginyje.
 
-Nustatymuose yra pilnos atsarginės kopijos eksportas ir importas. Kartą per mėnesį arba po didesnių pajamų įrašų verta atsisiųsti JSON kopiją ir laikyti ją telefono failuose arba debesyje.
+Be PIN duomenys saugomi narsykles / programeles vietineje saugykloje. Ijungus PIN, irasai saugomi sifruotame `localStorage` bloke naudojant Web Crypto AES-GCM ir rakta, isvestini is PIN.
 
-PIN užraktas saugo nuo atsitiktinio programėlės atidarymo tame pačiame telefone. PIN nėra pilnas duomenų šifravimas, todėl atsarginę kopiją vis tiek reikia laikyti atsakingai.
+Svarbu: jei pamirstamas PIN, sifruotu irasu atkurti nepavyks. Del to atsargine JSON kopija vis dar reikalinga.
+
+## Android kelias
+
+Projektas ruosiamas per Capacitor. Kai kompiuteryje bus `npm` ir Android Studio:
+
+```powershell
+npm install
+npm run cap:add:android
+npm run cap:open
+```
+
+Google Play reikia signed `.aab`, o ne paprasto `.apk`.
 
 ## Planuojama
 
-Kitas didesnis skaičiavimo pakeitimas: leisti rinktis tarp 30% išlaidų modelio ir realių išlaidų suvedimo. Vėliau bus pridėtas PVM mokėtojo režimas, kai bus patikslinta skaičiavimo logika. Taip pat planuojamas pensijų kaupimo pasirinkimas, nes kaupiant pensijai keičiasi vienas iš tarifų.
+Kitas didesnis skaiciavimo pakeitimas: leisti rinktis tarp 30% islaidu modelio ir realiu islaidu suvedimo. Veliau bus pridetas PVM moketojo rezimas ir pensijos kaupimo pasirinkimas, kai patikslinsime tikslias taisykles.
