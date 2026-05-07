@@ -296,7 +296,7 @@ select {
 }
 
 .tax-breakdown,
-detail-grid {
+.detail-grid {
   display: grid;
   gap: 8px;
 }
