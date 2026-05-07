@@ -30,6 +30,10 @@
           <span aria-hidden="true">⚙</span>
         </button>
       </header>
+      <div class="status-line">
+        <span class="status-pill" id="connectionStatus">Prisijungta</span>
+        <span class="status-pill subtle" id="backupReminder" hidden>Atsarginė kopija nekurta</span>
+      </div>
 
       <section class="summary-grid" aria-label="Suvestinė">
         <article class="metric primary">
@@ -61,6 +65,10 @@
             Pastaba
             <input id="note" type="text" placeholder="Klientas / sąskaita">
           </label>
+        </div>
+        <div class="quick-date-row" aria-label="Greitas datos pasirinkimas">
+          <button class="text-button" id="todayButton" type="button">Šiandien</button>
+          <button class="text-button" id="yesterdayButton" type="button">Vakar</button>
         </div>
         <div class="preview" id="calcPreview">
           <div>
@@ -181,6 +189,7 @@
           <button class="text-button" id="restoreButton" type="button">Atkurti kopiją</button>
           <input id="restoreInput" type="file" accept="application/json,.json" hidden>
         </div>
+        <p class="hint" id="backupStatus">Atsarginė kopija dar nekurta.</p>
 
         <div class="settings-block">
           <h3>PIN užraktas</h3>
@@ -198,8 +207,9 @@
         <div class="settings-block">
           <h3>Informacija</h3>
           <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
+          <button class="text-button wide" id="whatsNewButton" type="button">Kas naujo</button>
           <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
-          <p class="hint" id="versionText">Versija v0.2.0</p>
+          <p class="hint" id="versionText">Versija v0.3.0</p>
         </div>
 
         <div class="dialog-actions">
@@ -247,6 +257,22 @@
         </div>
         <p class="hint error-text" id="editMessage"></p>
         <button class="primary-button" id="saveEditButton" type="button">Išsaugoti pakeitimus</button>
+      </form>
+    </dialog>
+
+    <dialog class="settings-dialog" id="whatsNewDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <h2>Kas naujo</h2>
+          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
+        </div>
+        <div class="info-copy">
+          <p>Pridėtas atsarginės kopijos priminimas ir paskutinės kopijos data.</p>
+          <p>CSV eksportas dabar eksportuoja tai, ką matai pagal filtrus.</p>
+          <p>Įvestyje atsirado greiti datos mygtukai ir įspėjimas apie galimą dublikatą.</p>
+          <p>Pridėtas offline indikatorius ir saugesnis visų duomenų išvalymas.</p>
+        </div>
+        <button class="primary-button" value="default">Gerai</button>
       </form>
     </dialog>
 
