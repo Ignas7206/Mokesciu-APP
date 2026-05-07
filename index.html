@@ -3,8 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Individualios veiklos pajamu ir preliminariu mokesciu atsidejimo programele.">
     <meta name="theme-color" content="#12312f">
-    <title>Mokesčių atsidėjimas</title>
+    <title>Mokesciu atsidejimas</title>
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -12,9 +13,9 @@
     <section class="lock-screen" id="lockScreen" hidden>
       <div class="lock-panel">
         <p class="eyebrow">Apsauga</p>
-        <h1>Mokesčių atsidėjimas</h1>
+        <h1>Mokesciu atsidejimas</h1>
         <label for="pinInput">PIN kodas</label>
-        <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Įvesk PIN">
+        <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="Ivesk PIN">
         <p class="hint error-text" id="pinMessage"></p>
         <button class="primary-button" id="unlockButton" type="button">Atrakinti</button>
       </div>
@@ -24,325 +25,199 @@
       <header class="topbar">
         <div>
           <p class="eyebrow">Individuali veikla</p>
-          <h1>Mokesčių atsidėjimas</h1>
+          <h1>Mokesciu atsidejimas</h1>
         </div>
-        <button class="icon-button" id="settingsButton" type="button" aria-label="Nustatymai" title="Nustatymai">
-          <span aria-hidden="true">⚙</span>
-        </button>
+        <button class="icon-button" id="settingsButton" type="button" aria-label="Nustatymai" title="Nustatymai"><span aria-hidden="true">&#9881;</span></button>
       </header>
+
       <div class="status-line">
-        <span class="status-pill" id="connectionStatus">Prisijungta</span>
+        <span class="status-pill" id="connectionStatus">Online</span>
         <span class="status-pill subtle" id="storageStatus">Saugoma telefone</span>
-        <span class="status-pill subtle" id="securityStatus">PIN neįjungtas</span>
-        <span class="status-pill subtle" id="backupReminder" hidden>Atsarginė kopija nekurta</span>
+        <span class="status-pill subtle" id="securityStatus">PIN neijungtas</span>
+        <span class="status-pill subtle" id="backupReminder" hidden>Atsargine kopija</span>
       </div>
 
-      <section class="summary-grid" aria-label="Suvestinė">
-        <article class="metric primary">
-          <span>Šiemet pajamų</span>
-          <strong id="yearIncome">0,00 €</strong>
-        </article>
-        <article class="metric">
-          <span>Atidėti mokesčiams</span>
-          <strong id="yearTax">0,00 €</strong>
-        </article>
-        <article class="metric">
-          <span>Lieka po atidėjimo</span>
-          <strong id="yearNet">0,00 €</strong>
-        </article>
+      <section class="summary-grid" aria-label="Suvestine">
+        <article class="metric primary"><span>Siais metais pajamu</span><strong id="yearIncome">0,00 EUR</strong></article>
+        <article class="metric"><span>Atideti mokesciams</span><strong id="yearTax">0,00 EUR</strong></article>
+        <article class="metric"><span>Lieka po atidejimo</span><strong id="yearNet">0,00 EUR</strong></article>
       </section>
 
-      <section class="entry-panel" aria-label="Naujas mokėjimas">
+      <section class="entry-panel" aria-label="Naujas mokejimas">
         <label for="amount">Gauta suma</label>
         <div class="amount-row">
           <input id="amount" inputmode="decimal" autocomplete="off" placeholder="0,00" aria-describedby="calcPreview">
-          <span>€</span>
+          <span>EUR</span>
         </div>
         <div class="field-row">
-          <label>
-            Data
-            <input id="date" type="date">
-          </label>
-          <label>
-            Pastaba
-            <input id="note" type="text" placeholder="Klientas / sąskaita">
-          </label>
+          <label>Data<input id="date" type="date"></label>
+          <label>Pastaba<input id="note" type="text" placeholder="Klientas / saskaita"></label>
         </div>
         <div class="quick-date-row" aria-label="Greitas datos pasirinkimas">
-          <button class="text-button" id="todayButton" type="button">Šiandien</button>
+          <button class="text-button" id="todayButton" type="button">Siandien</button>
           <button class="text-button" id="yesterdayButton" type="button">Vakar</button>
         </div>
         <div class="preview" id="calcPreview">
-          <div>
-            <span>Atidėti</span>
-            <strong id="previewTax">0,00 €</strong>
-          </div>
-          <div>
-            <span>Lieka</span>
-            <strong id="previewNet">0,00 €</strong>
-          </div>
+          <div><span>Atideti</span><strong id="previewTax">0,00 EUR</strong></div>
+          <div><span>Lieka</span><strong id="previewNet">0,00 EUR</strong></div>
         </div>
-        <div class="tax-breakdown" aria-label="Mokesčių išskaidymas">
-          <div><span>GPM 5%</span><strong id="previewGpm">0,00 €</strong></div>
-          <div><span>PSD 6,98%</span><strong id="previewPsd">0,00 €</strong></div>
-          <div><span>VSD 15,52%</span><strong id="previewVsd">0,00 €</strong></div>
+        <div class="tax-breakdown" aria-label="Mokesciu isskaidymas">
+          <div><span>GPM 5%</span><strong id="previewGpm">0,00 EUR</strong></div>
+          <div><span>PSD 6,98%</span><strong id="previewPsd">0,00 EUR</strong></div>
+          <div><span>VSD 15,52%</span><strong id="previewVsd">0,00 EUR</strong></div>
         </div>
-        <button class="primary-button" id="addButton" type="button">Pridėti įrašą</button>
+        <button class="primary-button" id="addButton" type="button">Prideti irasa</button>
       </section>
 
       <nav class="tabs" aria-label="Vaizdas">
-        <button class="tab active" type="button" data-tab="records">Įrašai</button>
-        <button class="tab" type="button" data-tab="summary">Suvestinė</button>
-        <button class="tab" type="button" data-tab="months">Mėnesiai</button>
+        <button class="tab active" type="button" data-tab="records">Irasai</button>
+        <button class="tab" type="button" data-tab="summary">Suvestine</button>
+        <button class="tab" type="button" data-tab="months">Menesiai</button>
       </nav>
 
       <section id="recordsView">
-        <div class="section-head">
-          <h2>Įrašai</h2>
-          <button class="text-button" id="exportButton" type="button">CSV</button>
-        </div>
-        <div class="filter-panel" aria-label="Įrašų filtrai">
-          <label>
-            Paieška
-            <input id="searchInput" type="search" autocomplete="off" placeholder="Pastaba, klientas, suma">
-          </label>
+        <div class="section-head"><h2>Irasai</h2><button class="text-button" id="exportButton" type="button">CSV</button></div>
+        <div class="filter-panel" aria-label="Irasu filtrai">
+          <label>Paieska<input id="searchInput" type="search" autocomplete="off" placeholder="Pastaba, klientas, suma"></label>
           <div class="filter-row">
-            <label>
-              Metai
-              <select id="yearFilter"></select>
-            </label>
-            <label>
-              Mėnuo
-              <select id="monthFilter">
-                <option value="">Visi mėnesiai</option>
-                <option value="01">Sausis</option>
-                <option value="02">Vasaris</option>
-                <option value="03">Kovas</option>
-                <option value="04">Balandis</option>
-                <option value="05">Gegužė</option>
-                <option value="06">Birželis</option>
-                <option value="07">Liepa</option>
-                <option value="08">Rugpjūtis</option>
-                <option value="09">Rugsėjis</option>
-                <option value="10">Spalis</option>
-                <option value="11">Lapkritis</option>
-                <option value="12">Gruodis</option>
-              </select>
-            </label>
+            <label>Metai<select id="yearFilter"></select></label>
+            <label>Menuo<select id="monthFilter"><option value="">Visi menesiai</option><option value="01">Sausis</option><option value="02">Vasaris</option><option value="03">Kovas</option><option value="04">Balandis</option><option value="05">Geguze</option><option value="06">Birzelis</option><option value="07">Liepa</option><option value="08">Rugpjutis</option><option value="09">Rugsejis</option><option value="10">Spalis</option><option value="11">Lapkritis</option><option value="12">Gruodis</option></select></label>
           </div>
-          <div class="filter-actions">
-            <span id="filteredCount">0 įrašų</span>
-            <button class="text-button" id="clearFiltersButton" type="button">Išvalyti filtrus</button>
-          </div>
+          <div class="filter-actions"><span id="filteredCount">0 irasu</span><button class="text-button" id="clearFiltersButton" type="button">Isvalyti filtrus</button></div>
         </div>
-        <div class="empty-state" id="emptyState">Įvesk pirmą gautą sumą.</div>
+        <div class="empty-state" id="emptyState">Ivesk pirma gauta suma.</div>
         <div class="record-list" id="recordList"></div>
       </section>
 
       <section id="summaryView" hidden>
-        <div class="section-head">
-          <h2>Suvestinė</h2>
-        </div>
+        <div class="section-head"><h2>Suvestine</h2></div>
         <div class="detail-grid">
-          <article class="detail-row"><span>Bendros pajamos</span><strong id="totalIncome">0,00 €</strong></article>
-          <article class="detail-row"><span>Bendri mokesčiai</span><strong id="totalTax">0,00 €</strong></article>
-          <article class="detail-row"><span>Apmokestinamos pajamos</span><strong id="totalProfit">0,00 €</strong></article>
-          <article class="detail-row"><span>Sodros bazė</span><strong id="totalSocialBase">0,00 €</strong></article>
-          <article class="detail-row"><span>GPM</span><strong id="totalGpm">0,00 €</strong></article>
-          <article class="detail-row"><span>PSD</span><strong id="totalPsd">0,00 €</strong></article>
-          <article class="detail-row"><span>VSD</span><strong id="totalVsd">0,00 €</strong></article>
-          <article class="detail-row"><span>Po mokesčių</span><strong id="totalNet">0,00 €</strong></article>
-          <article class="detail-row"><span>Įrašų skaičius</span><strong id="recordCount">0</strong></article>
-          <article class="detail-row"><span>Aktyvūs mėnesiai</span><strong id="activeMonths">0</strong></article>
-          <article class="detail-row"><span>Vidutiniškai per mėn.</span><strong id="averageMonth">0,00 €</strong></article>
-          <article class="detail-row"><span>Didžiausias mokėjimas</span><strong id="largestRecord">0,00 €</strong></article>
+          <article class="detail-row"><span>Bendros pajamos</span><strong id="totalIncome">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Bendri mokesciai</span><strong id="totalTax">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Apmokestinamos pajamos</span><strong id="totalProfit">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Sodros baze</span><strong id="totalSocialBase">0,00 EUR</strong></article>
+          <article class="detail-row"><span>GPM</span><strong id="totalGpm">0,00 EUR</strong></article>
+          <article class="detail-row"><span>PSD</span><strong id="totalPsd">0,00 EUR</strong></article>
+          <article class="detail-row"><span>VSD</span><strong id="totalVsd">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Po mokesciu</span><strong id="totalNet">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Irasu skaicius</span><strong id="recordCount">0</strong></article>
+          <article class="detail-row"><span>Aktyvus menesiai</span><strong id="activeMonths">0</strong></article>
+          <article class="detail-row"><span>Vidutiniskai per men.</span><strong id="averageMonth">0,00 EUR</strong></article>
+          <article class="detail-row"><span>Didziausias mokejimas</span><strong id="largestRecord">0,00 EUR</strong></article>
         </div>
       </section>
 
       <section id="monthsView" hidden>
-        <div class="section-head">
-          <h2>Mėnesiai</h2>
-        </div>
+        <div class="section-head"><h2>Menesiai</h2></div>
         <div class="record-list" id="monthList"></div>
       </section>
     </main>
 
     <dialog class="settings-dialog" id="settingsDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Nustatymai</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-
-        <div class="field-row">
-          <label>
-            Skaičiavimo metai
-            <input id="taxYear" type="number" min="2026" max="2100" step="1">
-          </label>
-        </div>
-
-        <p class="hint">
-          Formulė: iš gautos sumos atimama 30% išlaidų. GPM 5% nuo likusios sumos.
-          PSD 6,98% ir VSD 15,52% skaičiuojami nuo 90% likusios sumos.
-        </p>
+        <div class="dialog-head"><h2>Nustatymai</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <div class="field-row"><label>Skaiciavimo metai<input id="taxYear" type="number" min="2026" max="2100" step="1"></label></div>
+        <p class="hint">Naudojama dabartine 30% islaidu formule. Veliau pridesime profilio nustatymus, realias islaidas, pensijos kaupima ir PVM scenarijus.</p>
 
         <div class="settings-block">
           <h3>Saugojimas</h3>
           <div class="storage-grid">
-            <article class="storage-card active">
-              <span>Telefone</span>
-              <strong>Automatinis</strong>
-              <p id="deviceStorageStatus">Kiekvienas įrašas iškart saugomas šiame telefone.</p>
-            </article>
-            <article class="storage-card">
-              <span>Debesis</span>
-              <strong>Pasirenkamas</strong>
-              <p id="cloudSyncStatus">Dar neprijungta. Vėliau bus galima prisijungti ir sinchronizuoti.</p>
-            </article>
+            <article class="storage-card active"><span>Telefone</span><strong>Automatinis</strong><p id="deviceStorageStatus">Kiekvienas irasas iskart saugomas siame telefone.</p></article>
+            <article class="storage-card"><span>Debesis</span><strong>Pasirenkamas</strong><p id="cloudSyncStatus">Dar neprijungta. Veliau bus galima prisijungti ir sinchronizuoti.</p></article>
           </div>
         </div>
 
         <div class="settings-block">
           <h3>Privatumas</h3>
           <button class="text-button wide" id="privacyButton" type="button">Duomenys ir saugumas</button>
-          <p class="hint" id="securityDetail">PIN neįjungtas. Įjungus PIN, įrašai bus šifruojami šiame telefone.</p>
+          <button class="text-button wide" id="privacyPolicyButton" type="button">Privatumo politika</button>
+          <p class="hint" id="securityDetail">PIN neijungtas.</p>
         </div>
 
         <div class="backup-actions">
-          <button class="text-button" id="backupButton" type="button">Atsarginė kopija</button>
-          <button class="text-button" id="restoreButton" type="button">Atkurti kopiją</button>
+          <button class="text-button" id="backupButton" type="button">Sukurti kopija</button>
+          <button class="text-button" id="restoreButton" type="button">Atkurti is kopijos</button>
           <input id="restoreInput" type="file" accept="application/json,.json" hidden>
         </div>
-        <p class="hint" id="backupStatus">Atsarginė kopija dar nekurta.</p>
+        <p class="hint" id="backupStatus">Atsargine kopija dar nekurta.</p>
 
         <div class="settings-block">
-          <h3>PIN užraktas</h3>
-          <label>
-            Naujas PIN
-            <input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="12" placeholder="Bent 4 skaičiai">
-          </label>
+          <h3>PIN uzraktas</h3>
+          <label>Naujas PIN<input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="12" placeholder="Bent 4 skaiciai"></label>
+          <label>Pakartok PIN<input id="newPinConfirm" type="password" inputmode="numeric" autocomplete="new-password" maxlength="12" placeholder="Tas pats PIN"></label>
           <div class="backup-actions">
-            <button class="text-button" id="savePinButton" type="button">Įjungti PIN</button>
-            <button class="text-button danger" id="removePinButton" type="button">Išjungti PIN</button>
+            <button class="text-button" id="savePinButton" type="button">Ijungti PIN</button>
+            <button class="text-button danger" id="removePinButton" type="button">Isjungti PIN</button>
           </div>
-          <p class="hint" id="pinStatus">PIN neįjungtas.</p>
+          <p class="hint" id="pinStatus">PIN neijungtas.</p>
+        </div>
+
+        <div class="settings-block">
+          <h3>Testavimas</h3>
+          <p class="hint" id="storageHealth">Tikrinama irenginio saugykla.</p>
+          <button class="text-button wide" id="testDataButton" type="button">Prideti testiniu irasu</button>
         </div>
 
         <div class="settings-block">
           <h3>Informacija</h3>
-          <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą</button>
+          <button class="text-button wide" id="aboutButton" type="button">Apie skaiciavima</button>
           <button class="text-button wide" id="whatsNewButton" type="button">Kas naujo</button>
-          <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
-          <p class="hint" id="versionText">Versija v0.5.0</p>
+          <p class="hint">Priminti veliau: realiu islaidu rezimas, PVM moketojo nustatymai ir pensijos kaupimas.</p>
+          <p class="hint" id="versionText">Versija v0.6.0</p>
         </div>
 
         <div class="dialog-actions">
-          <button class="text-button danger" id="clearButton" type="button">Išvalyti duomenis</button>
-          <button class="primary-button" id="saveSettingsButton" value="default">Išsaugoti</button>
+          <button class="text-button danger" id="clearButton" type="button">Isvalyti duomenis</button>
+          <button class="primary-button" id="saveSettingsButton" type="button">Issaugoti</button>
         </div>
       </form>
     </dialog>
 
     <dialog class="settings-dialog" id="onboardingDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Pradžia</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-        <div class="info-copy">
-          <p>Įrašai automatiškai saugomi šiame telefone. Programėlė veikia ir be interneto.</p>
-          <p>PIN galima įjungti nustatymuose. Tada įrašai šiame telefone bus šifruojami.</p>
-          <p>Debesies sinchronizavimą galėsime prijungti vėliau kaip pasirenkamą funkciją.</p>
-        </div>
-        <div class="field-row">
-          <label>
-            Skaičiavimo metai
-            <input id="onboardingTaxYear" type="number" min="2026" max="2100" step="1">
-          </label>
-        </div>
-        <label class="toggle">
-          <input id="onboardingPinChoice" type="checkbox">
-          Noriu įjungti PIN vėliau
-        </label>
-        <button class="primary-button" id="finishOnboardingButton" type="button">Pradėti</button>
+        <div class="dialog-head"><h2>Pradzia</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <div class="info-copy"><p>Irasai automatiskai saugomi siame telefone. Programele veikia ir be interneto.</p><p>PIN galima ijungti nustatymuose. Tada irasai telefone bus sifruojami.</p><p>Debesies sinchronizavima galesime prijungti veliau kaip pasirenkama funkcija.</p></div>
+        <div class="field-row"><label>Skaiciavimo metai<input id="onboardingTaxYear" type="number" min="2026" max="2100" step="1"></label></div>
+        <label class="toggle"><input id="onboardingPinChoice" type="checkbox"> Noriu ijungti PIN veliau</label>
+        <button class="primary-button" id="finishOnboardingButton" type="button">Pradeti</button>
       </form>
     </dialog>
 
     <dialog class="settings-dialog" id="aboutDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Apie programėlę</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-        <div class="info-copy">
-          <p>Programėlė skirta individualios veiklos pajamų įrašams ir preliminariam mokesčių atsidėjimui.</p>
-          <p>Šiuo metu naudojamas 30% išlaidų modelis. GPM, PSD ir VSD rodomi atskirai, kad būtų aišku, kiek atsidėti nuo gautos sumos.</p>
-          <p>Skaičiavimas yra preliminarus ir nepakeičia buhalterio ar VMI konsultacijos.</p>
-        </div>
+        <div class="dialog-head"><h2>Apie programele</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <div class="info-copy"><p>Programele skirta individualios veiklos pajamu irasams ir preliminariam mokesciu atsidejimui.</p><p>Siuo metu naudojamas 30% islaidu modelis. GPM, PSD ir VSD rodomi atskirai.</p><p>Skaiciavimas yra preliminarus ir nepakeicia buhalterio ar VMI konsultacijos.</p></div>
         <button class="primary-button" value="default">Supratau</button>
       </form>
     </dialog>
 
     <dialog class="settings-dialog" id="privacyDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Duomenys ir saugumas</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-        <div class="info-copy">
-          <p>Įrašai automatiškai saugomi šiame telefone. Kol neprijungtas debesis, jie nesiunčiami į serverį.</p>
-          <p id="privacyPinText">PIN neįjungtas. Įjungus PIN, įrašai bus šifruojami šiame įrenginyje.</p>
-          <p>Jei pamirši PIN, šifruotų įrašų atkurti nepavyks. Atsarginė JSON kopija lieka papildomas saugiklis.</p>
-        </div>
+        <div class="dialog-head"><h2>Duomenys ir saugumas</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <div class="info-copy"><p>Irasai automatiskai saugomi siame telefone. Kol neprijungtas debesis, jie nesiunciami i serveri.</p><p id="privacyPinText">PIN neijungtas.</p><p>Jei pamirsi PIN, sifruotu irasu atkurti nepavyks. Atsargine JSON kopija lieka papildomas saugiklis.</p></div>
         <button class="primary-button" value="default">Supratau</button>
       </form>
     </dialog>
 
     <dialog class="settings-dialog" id="editDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Redaguoti įrašą</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-        <label>
-          Gauta suma
-          <input id="editAmount" inputmode="decimal" autocomplete="off">
-        </label>
-        <div class="field-row">
-          <label>
-            Data
-            <input id="editDate" type="date">
-          </label>
-          <label>
-            Pastaba
-            <input id="editNote" type="text">
-          </label>
-        </div>
+        <div class="dialog-head"><h2>Redaguoti irasa</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <label>Gauta suma<input id="editAmount" inputmode="decimal" autocomplete="off"></label>
+        <div class="field-row"><label>Data<input id="editDate" type="date"></label><label>Pastaba<input id="editNote" type="text"></label></div>
         <p class="hint error-text" id="editMessage"></p>
-        <button class="primary-button" id="saveEditButton" type="button">Išsaugoti pakeitimus</button>
+        <button class="primary-button" id="saveEditButton" type="button">Issaugoti pakeitimus</button>
       </form>
     </dialog>
 
     <dialog class="settings-dialog" id="whatsNewDialog">
       <form method="dialog">
-        <div class="dialog-head">
-          <h2>Kas naujo</h2>
-          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
-        </div>
-        <div class="info-copy">
-          <p>Pridėtas atsarginės kopijos priminimas ir paskutinės kopijos data.</p>
-          <p>CSV eksportas dabar eksportuoja tai, ką matai pagal filtrus.</p>
-          <p>Įvestyje atsirado greiti datos mygtukai ir įspėjimas apie galimą dublikatą.</p>
-          <p>Pridėtas offline indikatorius ir saugesnis visų duomenų išvalymas.</p>
-          <p>Aiškiau rodoma, kad įrašai automatiškai saugomi telefone, o debesis bus pasirenkamas vėliau.</p>
-          <p>Pridėtas pirmo paleidimo ekranas, duomenų saugumo langas ir PIN šifravimas telefone.</p>
-        </div>
+        <div class="dialog-head"><h2>Kas naujo</h2><button class="icon-button" value="cancel" aria-label="Uzdaryti" title="Uzdaryti">&times;</button></div>
+        <div class="info-copy"><p>Pridetas PIN pakartojimas, privatumo politikos nuoroda ir saugyklos patikra.</p><p>Prideti testiniai irasai screenshotams ir Google Play listingui.</p><p>Paruostas Android/Capacitor kelias, kad galetume generuoti `.aab` Google Play konsolei.</p></div>
         <button class="primary-button" value="default">Gerai</button>
       </form>
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
-
     <script src="app.js"></script>
   </body>
 </html>
