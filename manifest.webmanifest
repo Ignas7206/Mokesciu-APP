@@ -1,10 +1,16 @@
 {
+  "id": "/Mokesciu-APP/",
   "name": "Mokesčių atsidėjimas",
   "short_name": "Mokesčiai",
+  "description": "Individualios veiklos pajamų ir preliminarių mokesčių atsidėjimo programėlė.",
+  "lang": "lt",
   "start_url": ".",
+  "scope": ".",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#f4f1ea",
   "theme_color": "#12312f",
+  "categories": ["finance", "productivity", "utilities"],
   "icons": [
     {
       "src": "icon.svg",
