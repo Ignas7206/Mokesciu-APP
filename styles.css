@@ -87,6 +87,43 @@ select {
   background: white;
 }
 
+.storage-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.storage-card {
+  display: grid;
+  gap: 4px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: white;
+  padding: 12px;
+}
+
+.storage-card.active {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.storage-card span {
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.storage-card strong {
+  font-size: 1rem;
+}
+
+.storage-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
 .text-button.wide {
   width: 100%;
   border: 1px solid var(--line);
@@ -570,5 +607,9 @@ select {
 
   .tax-breakdown {
     grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .storage-grid {
+    grid-template-columns: 1fr 1fr;
   }
 }
