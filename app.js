@@ -1,5 +1,6 @@
 const STORAGE_KEY = "tax-set-aside-v1";
 const AUTH_KEY = "tax-set-aside-auth-v1";
+const APP_VERSION = "v0.1.0";
 
 const defaultState = {
   settings: {
@@ -38,12 +39,20 @@ const els = {
   settingsButton: document.querySelector("#settingsButton"),
   settingsDialog: document.querySelector("#settingsDialog"),
   aboutDialog: document.querySelector("#aboutDialog"),
+  editDialog: document.querySelector("#editDialog"),
+  editAmount: document.querySelector("#editAmount"),
+  editDate: document.querySelector("#editDate"),
+  editNote: document.querySelector("#editNote"),
+  editMessage: document.querySelector("#editMessage"),
+  saveEditButton: document.querySelector("#saveEditButton"),
+  toast: document.querySelector("#toast"),
   taxYear: document.querySelector("#taxYear"),
   newPin: document.querySelector("#newPin"),
   savePinButton: document.querySelector("#savePinButton"),
   removePinButton: document.querySelector("#removePinButton"),
   pinStatus: document.querySelector("#pinStatus"),
   aboutButton: document.querySelector("#aboutButton"),
+  versionText: document.querySelector("#versionText"),
   saveSettingsButton: document.querySelector("#saveSettingsButton"),
   clearButton: document.querySelector("#clearButton"),
   exportButton: document.querySelector("#exportButton"),
@@ -57,6 +66,8 @@ const els = {
 };
 
 let state = loadState();
+let editingRecordId = null;
+let toastTimer = null;
 
 function loadAuth() {
   try {
@@ -94,8 +105,7 @@ function hasPin() {
 async function verifyPin(pin) {
   const auth = loadAuth();
   if (!auth?.salt || !auth?.hash) return true;
-  const hash = await hashPin(pin, auth.salt);
-  return hash === auth.hash;
+  return hashPin(pin, auth.salt).then((hash) => hash === auth.hash);
 }
 
 function refreshPinStatus() {
@@ -143,12 +153,14 @@ async function savePin() {
   saveAuth({ salt, hash: await hashPin(pin, salt), updatedAt: new Date().toISOString() });
   els.newPin.value = "";
   refreshPinStatus();
+  showToast("PIN išsaugotas.");
 }
 
 function removePin() {
   saveAuth(null);
   els.newPin.value = "";
   refreshPinStatus();
+  showToast("PIN išjungtas.");
 }
 
 function loadState() {
@@ -167,6 +179,15 @@ function loadState() {
 
 function saveState() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+function showToast(message) {
+  clearTimeout(toastTimer);
+  els.toast.textContent = message;
+  els.toast.hidden = false;
+  toastTimer = setTimeout(() => {
+    els.toast.hidden = true;
+  }, 2400);
 }
 
 function money(value) {
@@ -265,6 +286,7 @@ function renderRecords() {
         </div>
         <div class="record-actions">
           <div class="tax-pill">${money(tax)}</div>
+          <button class="icon-button small" type="button" data-edit="${record.id}" aria-label="Redaguoti įrašą" title="Redaguoti">✎</button>
           <button class="icon-button small" type="button" data-delete="${record.id}" aria-label="Ištrinti įrašą" title="Ištrinti">×</button>
         </div>
       </article>
@@ -333,7 +355,39 @@ function addRecord() {
   els.note.value = "";
   saveState();
   render();
+  showToast("Įrašas pridėtas.");
   els.amount.focus();
+}
+
+function openEditDialog(recordId) {
+  const record = state.records.find((item) => item.id === recordId);
+  if (!record) return;
+  editingRecordId = recordId;
+  els.editAmount.value = String(record.amount).replace(".", ",");
+  els.editDate.value = record.date;
+  els.editNote.value = record.note || "";
+  els.editMessage.textContent = "";
+  els.editDialog.showModal();
+  els.editAmount.focus();
+}
+
+function saveEditedRecord() {
+  const amount = parseAmount(els.editAmount.value);
+  if (!amount) {
+    els.editMessage.textContent = "Įvesk teisingą sumą.";
+    els.editAmount.focus();
+    return;
+  }
+  const record = state.records.find((item) => item.id === editingRecordId);
+  if (!record) return;
+  record.amount = amount;
+  record.date = els.editDate.value || isoToday();
+  record.note = els.editNote.value.trim();
+  record.updatedAt = new Date().toISOString();
+  saveState();
+  render();
+  els.editDialog.close();
+  showToast("Įrašas atnaujintas.");
 }
 
 function openSettings() {
@@ -348,6 +402,7 @@ function saveSettings() {
   };
   saveState();
   render();
+  showToast("Nustatymai išsaugoti.");
 }
 
 function exportCsv() {
@@ -374,6 +429,7 @@ function exportCsv() {
   link.download = `mokesciai-${state.settings.taxYear}.csv`;
   link.click();
   URL.revokeObjectURL(url);
+  showToast("CSV eksportas paruoštas.");
 }
 
 function downloadJson(filename, data) {
@@ -393,6 +449,7 @@ function exportBackup() {
     exportedAt: new Date().toISOString(),
     state
   });
+  showToast("Atsarginė kopija sukurta.");
 }
 
 function validBackup(data) {
@@ -418,6 +475,7 @@ function restoreBackup(file) {
       saveState();
       render();
       els.settingsDialog.close();
+      showToast("Kopija atkurta.");
     } catch {
       alert("Nepavyko atkurti kopijos. Patikrink, ar pasirinktas teisingas JSON failas.");
     } finally {
@@ -428,6 +486,7 @@ function restoreBackup(file) {
 }
 
 els.date.value = isoToday();
+els.versionText.textContent = `Versija ${APP_VERSION}`;
 refreshPinStatus();
 showLockIfNeeded();
 els.unlockButton.addEventListener("click", unlock);
@@ -443,17 +502,28 @@ els.settingsButton.addEventListener("click", openSettings);
 els.aboutButton.addEventListener("click", () => els.aboutDialog.showModal());
 els.savePinButton.addEventListener("click", savePin);
 els.removePinButton.addEventListener("click", removePin);
+els.saveEditButton.addEventListener("click", saveEditedRecord);
+els.editAmount.addEventListener("keydown", (event) => {
+  if (event.key === "Enter") saveEditedRecord();
+});
 els.saveSettingsButton.addEventListener("click", saveSettings);
 els.exportButton.addEventListener("click", exportCsv);
 els.backupButton.addEventListener("click", exportBackup);
 els.restoreButton.addEventListener("click", () => els.restoreInput.click());
 els.restoreInput.addEventListener("change", () => restoreBackup(els.restoreInput.files[0]));
 els.recordList.addEventListener("click", (event) => {
+  const editButton = event.target.closest("[data-edit]");
+  if (editButton) {
+    openEditDialog(editButton.dataset.edit);
+    return;
+  }
   const button = event.target.closest("[data-delete]");
   if (!button) return;
+  if (!confirm("Ištrinti šį įrašą?")) return;
   state.records = state.records.filter((record) => record.id !== button.dataset.delete);
   saveState();
   render();
+  showToast("Įrašas ištrintas.");
 });
 els.clearButton.addEventListener("click", () => {
   if (!confirm("Išvalyti visus įrašus?")) return;
@@ -461,6 +531,7 @@ els.clearButton.addEventListener("click", () => {
   saveState();
   render();
   els.settingsDialog.close();
+  showToast("Duomenys išvalyti.");
 });
 els.tabs.forEach((tab) => {
   tab.addEventListener("click", () => {
