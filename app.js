@@ -143,6 +143,7 @@ function showLockIfNeeded() {
     els.lockScreen.hidden = true;
     els.appShell.removeAttribute("aria-hidden");
     document.body.classList.remove("locked");
+    maybeShowWhatsNew();
     return;
   }
   els.lockScreen.hidden = false;
@@ -166,6 +167,7 @@ async function unlock() {
   els.lockScreen.hidden = true;
   els.appShell.removeAttribute("aria-hidden");
   document.body.classList.remove("locked");
+  maybeShowWhatsNew();
 }
 
 async function savePin() {
@@ -418,6 +420,13 @@ function updateConnectionStatus() {
   els.connectionStatus.classList.toggle("offline", !online);
 }
 
+function maybeShowWhatsNew() {
+  if (meta.lastSeenVersion === APP_VERSION) return;
+  meta.lastSeenVersion = APP_VERSION;
+  saveMeta();
+  setTimeout(() => els.whatsNewDialog.showModal(), 300);
+}
+
 function renderRecords() {
   const records = filteredRecords().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
   els.filteredCount.textContent = `${records.length} ${recordWord(records.length)}`;
@@ -667,11 +676,6 @@ saveState();
 refreshPinStatus();
 updateConnectionStatus();
 showLockIfNeeded();
-if (meta.lastSeenVersion !== APP_VERSION) {
-  meta.lastSeenVersion = APP_VERSION;
-  saveMeta();
-  setTimeout(() => els.whatsNewDialog.showModal(), 300);
-}
 els.unlockButton.addEventListener("click", unlock);
 els.pinInput.addEventListener("keydown", (event) => {
   if (event.key === "Enter") unlock();
