@@ -1,795 +1,253 @@
 const STORAGE_KEY = "tax-set-aside-v1";
+const SECURE_STORAGE_KEY = "tax-set-aside-secure-v1";
 const AUTH_KEY = "tax-set-aside-auth-v1";
 const META_KEY = "tax-set-aside-meta-v1";
-const APP_VERSION = "v0.4.0";
+const APP_VERSION = "v0.5.0";
 
-const defaultState = {
-  settings: {
-    taxYear: 2026
-  },
-  records: []
-};
-
+const defaultState = { settings: { taxYear: 2026 }, records: [] };
+const $ = (id) => document.querySelector(`#${id}`);
 const els = {
-  appShell: document.querySelector("#appShell"),
-  lockScreen: document.querySelector("#lockScreen"),
-  pinInput: document.querySelector("#pinInput"),
-  pinMessage: document.querySelector("#pinMessage"),
-  unlockButton: document.querySelector("#unlockButton"),
-  connectionStatus: document.querySelector("#connectionStatus"),
-  storageStatus: document.querySelector("#storageStatus"),
-  backupReminder: document.querySelector("#backupReminder"),
-  amount: document.querySelector("#amount"),
-  date: document.querySelector("#date"),
-  note: document.querySelector("#note"),
-  todayButton: document.querySelector("#todayButton"),
-  yesterdayButton: document.querySelector("#yesterdayButton"),
-  previewTax: document.querySelector("#previewTax"),
-  previewNet: document.querySelector("#previewNet"),
-  previewGpm: document.querySelector("#previewGpm"),
-  previewPsd: document.querySelector("#previewPsd"),
-  previewVsd: document.querySelector("#previewVsd"),
-  addButton: document.querySelector("#addButton"),
-  recordList: document.querySelector("#recordList"),
-  monthList: document.querySelector("#monthList"),
-  emptyState: document.querySelector("#emptyState"),
-  yearIncome: document.querySelector("#yearIncome"),
-  yearTax: document.querySelector("#yearTax"),
-  yearNet: document.querySelector("#yearNet"),
-  totalIncome: document.querySelector("#totalIncome"),
-  totalTax: document.querySelector("#totalTax"),
-  totalProfit: document.querySelector("#totalProfit"),
-  totalSocialBase: document.querySelector("#totalSocialBase"),
-  totalGpm: document.querySelector("#totalGpm"),
-  totalPsd: document.querySelector("#totalPsd"),
-  totalVsd: document.querySelector("#totalVsd"),
-  totalNet: document.querySelector("#totalNet"),
-  recordCount: document.querySelector("#recordCount"),
-  activeMonths: document.querySelector("#activeMonths"),
-  averageMonth: document.querySelector("#averageMonth"),
-  largestRecord: document.querySelector("#largestRecord"),
-  settingsButton: document.querySelector("#settingsButton"),
-  settingsDialog: document.querySelector("#settingsDialog"),
-  aboutDialog: document.querySelector("#aboutDialog"),
-  editDialog: document.querySelector("#editDialog"),
-  editAmount: document.querySelector("#editAmount"),
-  editDate: document.querySelector("#editDate"),
-  editNote: document.querySelector("#editNote"),
-  editMessage: document.querySelector("#editMessage"),
-  saveEditButton: document.querySelector("#saveEditButton"),
-  toast: document.querySelector("#toast"),
-  taxYear: document.querySelector("#taxYear"),
-  newPin: document.querySelector("#newPin"),
-  savePinButton: document.querySelector("#savePinButton"),
-  removePinButton: document.querySelector("#removePinButton"),
-  pinStatus: document.querySelector("#pinStatus"),
-  aboutButton: document.querySelector("#aboutButton"),
-  whatsNewButton: document.querySelector("#whatsNewButton"),
-  whatsNewDialog: document.querySelector("#whatsNewDialog"),
-  versionText: document.querySelector("#versionText"),
-  saveSettingsButton: document.querySelector("#saveSettingsButton"),
-  clearButton: document.querySelector("#clearButton"),
-  exportButton: document.querySelector("#exportButton"),
-  searchInput: document.querySelector("#searchInput"),
-  yearFilter: document.querySelector("#yearFilter"),
-  monthFilter: document.querySelector("#monthFilter"),
-  clearFiltersButton: document.querySelector("#clearFiltersButton"),
-  filteredCount: document.querySelector("#filteredCount"),
-  backupButton: document.querySelector("#backupButton"),
-  backupStatus: document.querySelector("#backupStatus"),
-  restoreButton: document.querySelector("#restoreButton"),
-  restoreInput: document.querySelector("#restoreInput"),
-  deviceStorageStatus: document.querySelector("#deviceStorageStatus"),
-  cloudSyncStatus: document.querySelector("#cloudSyncStatus"),
-  recordsView: document.querySelector("#recordsView"),
-  summaryView: document.querySelector("#summaryView"),
-  monthsView: document.querySelector("#monthsView"),
-  tabs: document.querySelectorAll(".tab")
+  appShell: $("appShell"), lockScreen: $("lockScreen"), pinInput: $("pinInput"), pinMessage: $("pinMessage"), unlockButton: $("unlockButton"),
+  connectionStatus: $("connectionStatus"), storageStatus: $("storageStatus"), securityStatus: $("securityStatus"), backupReminder: $("backupReminder"),
+  amount: $("amount"), date: $("date"), note: $("note"), todayButton: $("todayButton"), yesterdayButton: $("yesterdayButton"),
+  previewTax: $("previewTax"), previewNet: $("previewNet"), previewGpm: $("previewGpm"), previewPsd: $("previewPsd"), previewVsd: $("previewVsd"), addButton: $("addButton"),
+  recordList: $("recordList"), monthList: $("monthList"), emptyState: $("emptyState"), yearIncome: $("yearIncome"), yearTax: $("yearTax"), yearNet: $("yearNet"),
+  totalIncome: $("totalIncome"), totalTax: $("totalTax"), totalProfit: $("totalProfit"), totalSocialBase: $("totalSocialBase"), totalGpm: $("totalGpm"), totalPsd: $("totalPsd"), totalVsd: $("totalVsd"), totalNet: $("totalNet"),
+  recordCount: $("recordCount"), activeMonths: $("activeMonths"), averageMonth: $("averageMonth"), largestRecord: $("largestRecord"),
+  settingsButton: $("settingsButton"), settingsDialog: $("settingsDialog"), aboutDialog: $("aboutDialog"), editDialog: $("editDialog"), editAmount: $("editAmount"), editDate: $("editDate"), editNote: $("editNote"), editMessage: $("editMessage"), saveEditButton: $("saveEditButton"),
+  toast: $("toast"), taxYear: $("taxYear"), newPin: $("newPin"), savePinButton: $("savePinButton"), removePinButton: $("removePinButton"), pinStatus: $("pinStatus"),
+  aboutButton: $("aboutButton"), privacyButton: $("privacyButton"), privacyDialog: $("privacyDialog"), privacyPinText: $("privacyPinText"),
+  onboardingDialog: $("onboardingDialog"), onboardingTaxYear: $("onboardingTaxYear"), onboardingPinChoice: $("onboardingPinChoice"), finishOnboardingButton: $("finishOnboardingButton"),
+  whatsNewButton: $("whatsNewButton"), whatsNewDialog: $("whatsNewDialog"), versionText: $("versionText"), saveSettingsButton: $("saveSettingsButton"), clearButton: $("clearButton"), exportButton: $("exportButton"),
+  searchInput: $("searchInput"), yearFilter: $("yearFilter"), monthFilter: $("monthFilter"), clearFiltersButton: $("clearFiltersButton"), filteredCount: $("filteredCount"),
+  backupButton: $("backupButton"), backupStatus: $("backupStatus"), restoreButton: $("restoreButton"), restoreInput: $("restoreInput"), deviceStorageStatus: $("deviceStorageStatus"), cloudSyncStatus: $("cloudSyncStatus"), securityDetail: $("securityDetail"),
+  recordsView: $("recordsView"), summaryView: $("summaryView"), monthsView: $("monthsView"), tabs: document.querySelectorAll(".tab")
 };
 
 let state = loadState();
 let meta = loadMeta();
+let sessionPin = null;
 let editingRecordId = null;
 let toastTimer = null;
-let filters = {
-  query: "",
-  year: String(state.settings.taxYear),
-  month: ""
-};
+let filters = { query: "", year: String(state.settings.taxYear), month: "" };
 
-function loadAuth() {
-  try {
-    return JSON.parse(localStorage.getItem(AUTH_KEY));
-  } catch {
-    return null;
-  }
+function cloneDefault() { return structuredClone(defaultState); }
+function loadMeta() { try { return JSON.parse(localStorage.getItem(META_KEY)) || {}; } catch { return {}; } }
+function saveMeta() { localStorage.setItem(META_KEY, JSON.stringify(meta)); }
+function loadAuth() { try { return JSON.parse(localStorage.getItem(AUTH_KEY)); } catch { return null; } }
+function saveAuth(auth) { auth ? localStorage.setItem(AUTH_KEY, JSON.stringify(auth)) : localStorage.removeItem(AUTH_KEY); }
+function bytesToBase64(bytes) { let text = ""; for (const byte of bytes) text += String.fromCharCode(byte); return btoa(text); }
+function base64ToBytes(value) { return Uint8Array.from(atob(value), (char) => char.charCodeAt(0)); }
+function saltHex() { const bytes = crypto.getRandomValues(new Uint8Array(16)); return [...bytes].map((byte) => byte.toString(16).padStart(2, "0")).join(""); }
+async function hashPin(pin, salt) { const data = new TextEncoder().encode(`${salt}:${pin}`); const hash = await crypto.subtle.digest("SHA-256", data); return [...new Uint8Array(hash)].map((byte) => byte.toString(16).padStart(2, "0")).join(""); }
+async function storageKey(pin, salt) { const material = await crypto.subtle.importKey("raw", new TextEncoder().encode(pin), "PBKDF2", false, ["deriveKey"]); return crypto.subtle.deriveKey({ name: "PBKDF2", salt: base64ToBytes(salt), iterations: 180000, hash: "SHA-256" }, material, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]); }
+function hasPin() { const auth = loadAuth(); return Boolean(auth?.salt && auth?.hash); }
+function isEncryptedStorage() { const auth = loadAuth(); return Boolean(auth?.encrypted && localStorage.getItem(SECURE_STORAGE_KEY)); }
+async function verifyPin(pin) { const auth = loadAuth(); return !auth?.hash || await hashPin(pin, auth.salt) === auth.hash; }
+
+function sanitize(value) {
+  const settings = { ...defaultState.settings, ...value?.settings };
+  const records = Array.isArray(value?.records) ? value.records.filter((record) => Number(record.amount) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(record.date || "")).map((record) => ({
+    id: record.id || crypto.randomUUID(), amount: Number(record.amount), date: record.date, note: String(record.note || ""), createdAt: record.createdAt || new Date().toISOString(), updatedAt: record.updatedAt
+  })) : [];
+  return { settings, records };
 }
-
-function saveAuth(auth) {
-  if (!auth) {
-    localStorage.removeItem(AUTH_KEY);
-    return;
-  }
-  localStorage.setItem(AUTH_KEY, JSON.stringify(auth));
-}
-
-function randomSalt() {
-  const bytes = new Uint8Array(16);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-async function hashPin(pin, salt) {
-  const input = new TextEncoder().encode(`${salt}:${pin}`);
-  const digest = await crypto.subtle.digest("SHA-256", input);
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-function hasPin() {
-  const auth = loadAuth();
-  return Boolean(auth?.salt && auth?.hash);
-}
-
-async function verifyPin(pin) {
-  const auth = loadAuth();
-  if (!auth?.salt || !auth?.hash) return true;
-  return hashPin(pin, auth.salt).then((hash) => hash === auth.hash);
-}
-
-function refreshPinStatus() {
-  els.pinStatus.textContent = hasPin() ? "PIN užraktas įjungtas." : "PIN neužstatytas.";
-  els.removePinButton.disabled = !hasPin();
-}
-
-function showLockIfNeeded() {
-  if (!hasPin()) {
-    els.lockScreen.hidden = true;
-    els.appShell.removeAttribute("aria-hidden");
-    document.body.classList.remove("locked");
-    maybeShowWhatsNew();
-    return;
-  }
-  els.lockScreen.hidden = false;
-  els.appShell.setAttribute("aria-hidden", "true");
-  document.body.classList.add("locked");
-  els.pinInput.focus();
-}
-
-async function unlock() {
-  const pin = els.pinInput.value.trim();
-  if (!pin) return;
-  const ok = await verifyPin(pin);
-  if (!ok) {
-    els.pinMessage.textContent = "Neteisingas PIN.";
-    els.pinInput.value = "";
-    els.pinInput.focus();
-    return;
-  }
-  els.pinInput.value = "";
-  els.pinMessage.textContent = "";
-  els.lockScreen.hidden = true;
-  els.appShell.removeAttribute("aria-hidden");
-  document.body.classList.remove("locked");
-  maybeShowWhatsNew();
-}
-
-async function savePin() {
-  const pin = els.newPin.value.trim();
-  if (pin.length < 4 || !/^\d+$/.test(pin)) {
-    els.pinStatus.textContent = "PIN turi būti bent 4 skaičiai.";
-    return;
-  }
-  const salt = randomSalt();
-  saveAuth({ salt, hash: await hashPin(pin, salt), updatedAt: new Date().toISOString() });
-  els.newPin.value = "";
-  refreshPinStatus();
-  showToast("PIN išsaugotas.");
-}
-
-function removePin() {
-  saveAuth(null);
-  els.newPin.value = "";
-  refreshPinStatus();
-  showToast("PIN išjungtas.");
-}
-
 function loadState() {
-  try {
-    const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return sanitizeState({
-      ...defaultState,
-      ...saved,
-      settings: { ...defaultState.settings, ...saved?.settings },
-      records: Array.isArray(saved?.records) ? saved.records : []
-    });
-  } catch {
-    return structuredClone(defaultState);
-  }
+  if (localStorage.getItem(SECURE_STORAGE_KEY)) return cloneDefault();
+  try { return sanitize({ ...cloneDefault(), ...JSON.parse(localStorage.getItem(STORAGE_KEY)) }); } catch { return cloneDefault(); }
 }
-
+async function encryptState(pin) {
+  const auth = loadAuth();
+  if (!auth?.encrypted || !auth?.storageSalt) return;
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await storageKey(pin, auth.storageSalt);
+  const encrypted = await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(state)));
+  localStorage.setItem(SECURE_STORAGE_KEY, JSON.stringify({ version: 1, iv: bytesToBase64(iv), data: bytesToBase64(new Uint8Array(encrypted)) }));
+  localStorage.removeItem(STORAGE_KEY);
+}
+async function decryptState(pin) {
+  const auth = loadAuth();
+  const secure = JSON.parse(localStorage.getItem(SECURE_STORAGE_KEY) || "null");
+  if (!auth?.encrypted || !secure?.iv || !secure?.data) return;
+  const key = await storageKey(pin, auth.storageSalt);
+  const decrypted = await crypto.subtle.decrypt({ name: "AES-GCM", iv: base64ToBytes(secure.iv) }, key, base64ToBytes(secure.data));
+  state = sanitize(JSON.parse(new TextDecoder().decode(decrypted)));
+}
 function saveState() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (isEncryptedStorage()) {
+    if (sessionPin) encryptState(sessionPin).catch(() => showToast("Nepavyko šifruotai išsaugoti."));
+  } else {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
   meta.lastLocalSaveAt = new Date().toISOString();
   saveMeta();
   renderStorageStatus();
 }
 
-function loadMeta() {
-  try {
-    return JSON.parse(localStorage.getItem(META_KEY)) || {};
-  } catch {
-    return {};
-  }
+function money(value) { return new Intl.NumberFormat("lt-LT", { style: "currency", currency: "EUR" }).format(value || 0); }
+function parseAmount(value) { const amount = Number.parseFloat(String(value).replace(/\s/g, "").replace(",", ".")); return Number.isFinite(amount) && amount > 0 ? amount : 0; }
+function isoToday() { return new Date().toISOString().slice(0, 10); }
+function isoDaysAgo(days) { const date = new Date(); date.setDate(date.getDate() - days); return date.toISOString().slice(0, 10); }
+function calc(income) { const profit = Math.max(0, income * 0.7); const socialBase = profit * 0.9; const gpm = profit * 0.05; const psd = socialBase * 0.0698; const vsd = socialBase * 0.1552; const tax = gpm + psd + vsd; return { income, profit, socialBase, gpm, psd, vsd, tax, net: Math.max(0, income - tax) }; }
+function yearRecords(records = state.records) { return records.filter((record) => record.date?.startsWith(String(state.settings.taxYear))); }
+function yearCalc(records = state.records) { return calc(yearRecords(records).reduce((sum, record) => sum + record.amount, 0)); }
+function daysSince(dateText) { const time = Date.parse(dateText || ""); return Number.isFinite(time) ? Math.floor((Date.now() - time) / 86400000) : Infinity; }
+function recordWord(count) { const last = count % 10, lastTwo = count % 100; if (last === 1 && lastTwo !== 11) return "įrašas"; if (last >= 2 && last <= 9 && (lastTwo < 10 || lastTwo >= 20)) return "įrašai"; return "įrašų"; }
+function escapeHtml(value) { return String(value).replaceAll("&", "&amp;").replaceAll("<", "&lt;").replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#039;"); }
+function showToast(message) { clearTimeout(toastTimer); els.toast.textContent = message; els.toast.hidden = false; toastTimer = setTimeout(() => { els.toast.hidden = true; }, 2400); }
+
+function filteredRecords() {
+  const query = filters.query.trim().toLowerCase();
+  return state.records.filter((record) => {
+    const text = [record.note, record.date, record.amount, String(record.amount).replace(".", ",")].join(" ").toLowerCase();
+    return (!filters.year || record.date.slice(0, 4) === filters.year) && (!filters.month || record.date.slice(5, 7) === filters.month) && (!query || text.includes(query));
+  });
 }
-
-function saveMeta() {
-  localStorage.setItem(META_KEY, JSON.stringify(meta));
-}
-
-function sanitizeState(value) {
-  const settings = { ...defaultState.settings, ...value?.settings };
-  const records = Array.isArray(value?.records)
-    ? value.records
-        .filter((record) => Number.isFinite(Number(record.amount)) && Number(record.amount) > 0 && /^\d{4}-\d{2}-\d{2}$/.test(record.date || ""))
-        .map((record) => ({
-          id: record.id || crypto.randomUUID(),
-          amount: Number(record.amount),
-          date: record.date,
-          note: String(record.note || ""),
-          createdAt: record.createdAt || new Date().toISOString(),
-          updatedAt: record.updatedAt
-        }))
-    : [];
-
-  return {
-    ...defaultState,
-    ...value,
-    settings,
-    records
-  };
-}
-
-function daysSince(dateText) {
-  if (!dateText) return Infinity;
-  const time = Date.parse(dateText);
-  if (!Number.isFinite(time)) return Infinity;
-  return Math.floor((Date.now() - time) / 86400000);
-}
-
-function showToast(message) {
-  clearTimeout(toastTimer);
-  els.toast.textContent = message;
-  els.toast.hidden = false;
-  toastTimer = setTimeout(() => {
-    els.toast.hidden = true;
-  }, 2400);
-}
-
-function money(value) {
-  return new Intl.NumberFormat("lt-LT", {
-    style: "currency",
-    currency: "EUR"
-  }).format(value || 0);
-}
-
-function parseAmount(value) {
-  const normalized = String(value).replace(/\s/g, "").replace(",", ".");
-  const amount = Number.parseFloat(normalized);
-  return Number.isFinite(amount) && amount > 0 ? amount : 0;
-}
-
-function isoToday() {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function isoDaysAgo(days) {
-  const date = new Date();
-  date.setDate(date.getDate() - days);
-  return date.toISOString().slice(0, 10);
-}
-
-function taxableProfit(income) {
-  const expenses = income * 0.3;
-  return Math.max(0, income - expenses);
-}
-
-function calculateForIncome(income) {
-  const profit = taxableProfit(income);
-  const socialBase = profit * 0.9;
-  const gpmRate = 0.05;
-  const psdRate = 0.0698;
-  const vsdRate = 0.1552;
-  const gpm = profit * gpmRate;
-  const psd = socialBase * psdRate;
-  const vsd = socialBase * vsdRate;
-  const tax = gpm + vsd + psd;
-
-  return {
-    income,
-    profit,
-    socialBase,
-    gpm,
-    psd,
-    vsd,
-    tax,
-    net: Math.max(0, income - tax)
-  };
-}
-
-function yearlyCalc(records = state.records) {
-  const currentYear = String(state.settings.taxYear);
-  const yearRecords = records.filter((record) => record.date?.startsWith(currentYear));
-  const income = yearRecords.reduce((sum, record) => sum + record.amount, 0);
-  return calculateForIncome(income);
-}
-
-function yearlyRecords() {
-  const currentYear = String(state.settings.taxYear);
-  return state.records.filter((record) => record.date?.startsWith(currentYear));
-}
-
-function availableYears() {
-  const years = new Set(state.records.map((record) => record.date?.slice(0, 4)).filter(Boolean));
-  years.add(String(state.settings.taxYear));
-  return [...years].sort((a, b) => b.localeCompare(a));
-}
-
-function syncFilterOptions() {
-  const selectedYear = filters.year || String(state.settings.taxYear);
-  els.yearFilter.innerHTML = availableYears()
-    .map((year) => `<option value="${year}">${year}</option>`)
-    .join("");
-  els.yearFilter.value = availableYears().includes(selectedYear) ? selectedYear : String(state.settings.taxYear);
+function syncFilters() {
+  const years = [...new Set([String(state.settings.taxYear), ...state.records.map((record) => record.date.slice(0, 4))])].sort((a, b) => b.localeCompare(a));
+  els.yearFilter.innerHTML = years.map((year) => `<option value="${year}">${year}</option>`).join("");
+  els.yearFilter.value = years.includes(filters.year) ? filters.year : String(state.settings.taxYear);
   filters.year = els.yearFilter.value;
   els.monthFilter.value = filters.month;
   els.searchInput.value = filters.query;
 }
-
-function matchesFilters(record) {
-  const query = filters.query.trim().toLowerCase();
-  const recordMonth = record.date?.slice(5, 7);
-  const recordYear = record.date?.slice(0, 4);
-  const searchable = [record.note, record.date, String(record.amount).replace(".", ","), String(record.amount)]
-    .join(" ")
-    .toLowerCase();
-
-  return (!filters.year || recordYear === filters.year)
-    && (!filters.month || recordMonth === filters.month)
-    && (!query || searchable.includes(query));
-}
-
-function filteredRecords() {
-  return state.records.filter(matchesFilters);
-}
-
-function hasDuplicate(amount, date) {
-  return state.records.some((record) => record.date === date && Math.abs(record.amount - amount) < 0.01);
-}
-
-function proportionalTaxForRecord(record) {
-  return calculateForIncome(record.amount).tax;
-}
-
-function updatePreview() {
-  const amount = parseAmount(els.amount.value);
-  const calc = calculateForIncome(amount);
-  els.previewTax.textContent = money(calc.tax);
-  els.previewNet.textContent = money(calc.net);
-  els.previewGpm.textContent = money(calc.gpm);
-  els.previewPsd.textContent = money(calc.psd);
-  els.previewVsd.textContent = money(calc.vsd);
-}
-
 function renderSummary() {
-  const calc = yearlyCalc();
-  const records = yearlyRecords();
-  const months = new Set(records.map((record) => record.date?.slice(0, 7)).filter(Boolean));
+  const summary = yearCalc();
+  const records = yearRecords();
+  const months = new Set(records.map((record) => record.date.slice(0, 7)));
   const largest = records.reduce((max, record) => Math.max(max, record.amount), 0);
-  const average = months.size ? calc.income / months.size : 0;
-  els.yearIncome.textContent = money(calc.income);
-  els.yearTax.textContent = money(calc.tax);
-  els.yearNet.textContent = money(calc.net);
-  els.totalIncome.textContent = money(calc.income);
-  els.totalTax.textContent = money(calc.tax);
-  els.totalProfit.textContent = money(calc.profit);
-  els.totalSocialBase.textContent = money(calc.socialBase);
-  els.totalGpm.textContent = money(calc.gpm);
-  els.totalPsd.textContent = money(calc.psd);
-  els.totalVsd.textContent = money(calc.vsd);
-  els.totalNet.textContent = money(calc.net);
+  const pairs = [[els.yearIncome, summary.income], [els.yearTax, summary.tax], [els.yearNet, summary.net], [els.totalIncome, summary.income], [els.totalTax, summary.tax], [els.totalProfit, summary.profit], [els.totalSocialBase, summary.socialBase], [els.totalGpm, summary.gpm], [els.totalPsd, summary.psd], [els.totalVsd, summary.vsd], [els.totalNet, summary.net], [els.averageMonth, months.size ? summary.income / months.size : 0], [els.largestRecord, largest]];
+  pairs.forEach(([el, value]) => { el.textContent = money(value); });
   els.recordCount.textContent = String(records.length);
   els.activeMonths.textContent = String(months.size);
-  els.averageMonth.textContent = money(average);
-  els.largestRecord.textContent = money(largest);
 }
-
-function renderBackupStatus() {
-  const lastBackup = meta.lastBackupAt;
-  const age = daysSince(lastBackup);
-  const hasRecords = state.records.length > 0;
-  const needsBackup = hasRecords && age >= 30;
-  const backupText = Number.isFinite(age)
-    ? `Paskutinė atsarginė kopija: prieš ${age} d.`
-    : "Atsarginė kopija dar nekurta.";
-
-  els.backupStatus.textContent = backupText;
-  els.backupReminder.hidden = !needsBackup;
-  if (needsBackup) {
-    els.backupReminder.textContent = age === Infinity ? "Pasidaryk atsarginę kopiją" : `Kopija daryta prieš ${age} d.`;
-  }
-}
-
-function formatSaveTime(dateText) {
-  const date = new Date(dateText);
-  if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("lt-LT", {
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(date);
-}
-
-function renderStorageStatus() {
-  const time = formatSaveTime(meta.lastLocalSaveAt);
-  const savedText = time ? `Išsaugota telefone ${time}` : "Saugoma telefone";
-  els.storageStatus.textContent = savedText;
-  els.deviceStorageStatus.textContent = time
-    ? `Kiekvienas įrašas iškart saugomas šiame telefone. Paskutinis išsaugojimas: ${time}.`
-    : "Kiekvienas įrašas iškart saugomas šiame telefone.";
-  els.cloudSyncStatus.textContent = "Dar neprijungta. Vėliau bus galima prisijungti ir sinchronizuoti.";
-}
-
-function updateConnectionStatus() {
-  const online = navigator.onLine;
-  els.connectionStatus.textContent = online ? "Online" : "Offline";
-  els.connectionStatus.classList.toggle("offline", !online);
-}
-
-function maybeShowWhatsNew() {
-  if (meta.lastSeenVersion === APP_VERSION) return;
-  meta.lastSeenVersion = APP_VERSION;
-  saveMeta();
-  setTimeout(() => els.whatsNewDialog.showModal(), 300);
-}
-
 function renderRecords() {
-  const records = filteredRecords().sort((a, b) => b.date.localeCompare(a.date) || b.createdAt.localeCompare(a.createdAt));
+  const records = filteredRecords().sort((a, b) => b.date.localeCompare(a.date) || String(b.createdAt).localeCompare(String(a.createdAt)));
   els.filteredCount.textContent = `${records.length} ${recordWord(records.length)}`;
   els.emptyState.textContent = state.records.length ? "Pagal filtrus įrašų nėra." : "Įvesk pirmą gautą sumą.";
   els.emptyState.hidden = records.length > 0;
-  els.recordList.innerHTML = records.map((record) => {
-    const tax = proportionalTaxForRecord(record);
-    const note = record.note ? `<small>${escapeHtml(record.note)}</small>` : "";
-    return `
-      <article class="record">
-        <div>
-          <div class="record-title">
-            <strong>${money(record.amount)}</strong>
-            <small>${record.date}</small>
-          </div>
-          ${note}
-        </div>
-        <div class="record-actions">
-          <div class="tax-pill">${money(tax)}</div>
-          <button class="icon-button small" type="button" data-edit="${record.id}" aria-label="Redaguoti įrašą" title="Redaguoti">✎</button>
-          <button class="icon-button small" type="button" data-delete="${record.id}" aria-label="Ištrinti įrašą" title="Ištrinti">×</button>
-        </div>
-      </article>
-    `;
-  }).join("");
+  els.recordList.innerHTML = records.map((record) => `<article class="record"><div><div class="record-title"><strong>${money(record.amount)}</strong><small>${record.date}</small></div>${record.note ? `<small>${escapeHtml(record.note)}</small>` : ""}</div><div class="record-actions"><div class="tax-pill">${money(calc(record.amount).tax)}</div><button class="icon-button small" type="button" data-edit="${record.id}" aria-label="Redaguoti įrašą" title="Redaguoti">✎</button><button class="icon-button small" type="button" data-delete="${record.id}" aria-label="Ištrinti įrašą" title="Ištrinti">×</button></div></article>`).join("");
 }
-
 function renderMonths() {
   const groups = new Map();
-  for (const record of filteredRecords()) {
-    const key = record.date.slice(0, 7);
-    groups.set(key, (groups.get(key) || 0) + record.amount);
-  }
-
-  els.monthList.innerHTML = [...groups.entries()]
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .map(([month, income]) => {
-      const calc = calculateForIncome(income);
-      return `
-        <article class="record">
-          <div>
-            <div class="record-title">
-              <strong>${month}</strong>
-              <small>${money(income)} pajamų</small>
-            </div>
-            <small>Lieka ${money(calc.net)}</small>
-          </div>
-          <div class="tax-pill">${money(calc.tax)}</div>
-        </article>
-      `;
-    }).join("") || `<div class="empty-state">Mėnesių suvestinė atsiras pridėjus įrašų.</div>`;
+  filteredRecords().forEach((record) => groups.set(record.date.slice(0, 7), (groups.get(record.date.slice(0, 7)) || 0) + record.amount));
+  els.monthList.innerHTML = [...groups.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([month, income]) => `<article class="record"><div><div class="record-title"><strong>${month}</strong><small>${money(income)} pajamų</small></div><small>Lieka ${money(calc(income).net)}</small></div><div class="tax-pill">${money(calc(income).tax)}</div></article>`).join("") || `<div class="empty-state">Mėnesių suvestinė atsiras pridėjus įrašų.</div>`;
 }
-
-function escapeHtml(value) {
-  return String(value)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#039;");
+function renderBackupStatus() {
+  const age = daysSince(meta.lastBackupAt);
+  const needsBackup = state.records.length > 0 && age >= 30;
+  els.backupStatus.textContent = Number.isFinite(age) ? `Paskutinė atsarginė kopija: prieš ${age} d.` : "Atsarginė kopija dar nekurta.";
+  els.backupReminder.hidden = !needsBackup;
+  if (needsBackup) els.backupReminder.textContent = Number.isFinite(age) ? `Kopija daryta prieš ${age} d.` : "Pasidaryk atsarginę kopiją";
 }
-
-function recordWord(count) {
-  const last = count % 10;
-  const lastTwo = count % 100;
-  if (last === 1 && lastTwo !== 11) return "įrašas";
-  if (last >= 2 && last <= 9 && (lastTwo < 10 || lastTwo >= 20)) return "įrašai";
-  return "įrašų";
+function renderStorageStatus() {
+  const time = meta.lastLocalSaveAt ? new Intl.DateTimeFormat("lt-LT", { hour: "2-digit", minute: "2-digit" }).format(new Date(meta.lastLocalSaveAt)) : "";
+  const encrypted = isEncryptedStorage();
+  els.storageStatus.textContent = time ? `Išsaugota telefone ${time}` : "Saugoma telefone";
+  els.deviceStorageStatus.textContent = `${time ? `Kiekvienas įrašas iškart saugomas šiame telefone. Paskutinis išsaugojimas: ${time}.` : "Kiekvienas įrašas iškart saugomas šiame telefone."}${encrypted ? " PIN įjungtas, todėl įrašai šifruojami." : ""}`;
+  els.cloudSyncStatus.textContent = "Dar neprijungta. Vėliau bus galima prisijungti ir sinchronizuoti.";
 }
+function refreshPinStatus() {
+  const encrypted = isEncryptedStorage();
+  els.pinStatus.textContent = hasPin() ? encrypted ? "PIN įjungtas. Įrašai šifruojami telefone." : "PIN įjungtas." : "PIN neįjungtas.";
+  els.securityStatus.textContent = encrypted ? "Šifruota PIN" : hasPin() ? "PIN įjungtas" : "PIN neįjungtas";
+  const detail = encrypted ? "PIN įjungtas. Įrašai šiame telefone saugomi šifruotai." : "PIN neįjungtas. Įjungus PIN, įrašai bus šifruojami šiame telefone.";
+  els.securityDetail.textContent = detail;
+  els.privacyPinText.textContent = detail;
+  els.removePinButton.disabled = !hasPin();
+}
+function updatePreview() { const preview = calc(parseAmount(els.amount.value)); els.previewTax.textContent = money(preview.tax); els.previewNet.textContent = money(preview.net); els.previewGpm.textContent = money(preview.gpm); els.previewPsd.textContent = money(preview.psd); els.previewVsd.textContent = money(preview.vsd); }
+function render() { syncFilters(); renderSummary(); renderBackupStatus(); renderStorageStatus(); refreshPinStatus(); renderRecords(); renderMonths(); updatePreview(); }
 
-function render() {
-  syncFilterOptions();
-  renderSummary();
-  renderBackupStatus();
-  renderStorageStatus();
-  renderRecords();
-  renderMonths();
-  updatePreview();
+function maybeShowOnboarding() { if (meta.onboardingDone) return; els.onboardingTaxYear.value = state.settings.taxYear; setTimeout(() => els.onboardingDialog.showModal(), 200); }
+function maybeShowWhatsNew() { if (!meta.onboardingDone || meta.lastSeenVersion === APP_VERSION) return; meta.lastSeenVersion = APP_VERSION; saveMeta(); setTimeout(() => els.whatsNewDialog.showModal(), 300); }
+function openApp() { els.lockScreen.hidden = true; els.appShell.removeAttribute("aria-hidden"); document.body.classList.remove("locked"); maybeShowOnboarding(); maybeShowWhatsNew(); }
+function showLockIfNeeded() { if (!hasPin()) return openApp(); els.lockScreen.hidden = false; els.appShell.setAttribute("aria-hidden", "true"); document.body.classList.add("locked"); els.pinInput.focus(); }
+async function unlock() {
+  const pin = els.pinInput.value.trim();
+  if (!pin) return;
+  if (!await verifyPin(pin)) { els.pinMessage.textContent = "Neteisingas PIN."; els.pinInput.value = ""; els.pinInput.focus(); return; }
+  try { if (isEncryptedStorage()) { await decryptState(pin); sessionPin = pin; } } catch { els.pinMessage.textContent = "Nepavyko atrakinti šifruotų duomenų."; return; }
+  els.pinInput.value = ""; els.pinMessage.textContent = ""; render(); openApp();
+}
+async function savePin() {
+  const pin = els.newPin.value.trim();
+  if (pin.length < 4 || !/^\d+$/.test(pin)) { els.pinStatus.textContent = "PIN turi būti bent 4 skaičiai."; return; }
+  saveAuth({ salt: saltHex(), storageSalt: bytesToBase64(crypto.getRandomValues(new Uint8Array(16))), hash: await hashPin(pin, saltHex()), encrypted: true, updatedAt: new Date().toISOString() });
+  const auth = loadAuth();
+  auth.hash = await hashPin(pin, auth.salt);
+  saveAuth(auth);
+  sessionPin = pin;
+  await encryptState(pin);
+  els.newPin.value = "";
+  render();
+  showToast("PIN įjungtas. Įrašai šifruojami telefone.");
+}
+function removePin() {
+  if (isEncryptedStorage() && !sessionPin) { alert("Pirma atrakink programėlę PIN kodu, tada galėsi išjungti PIN."); return; }
+  if (isEncryptedStorage()) { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); localStorage.removeItem(SECURE_STORAGE_KEY); }
+  saveAuth(null); sessionPin = null; render(); showToast("PIN išjungtas.");
+}
+function finishOnboarding() {
+  state.settings.taxYear = Number(els.onboardingTaxYear.value) || state.settings.taxYear;
+  filters.year = String(state.settings.taxYear);
+  meta.onboardingDone = true;
+  saveMeta(); saveState(); render(); els.onboardingDialog.close();
+  if (els.onboardingPinChoice.checked) { openSettings(); els.newPin.focus(); } else maybeShowWhatsNew();
 }
 
 function addRecord() {
   const amount = parseAmount(els.amount.value);
-  if (!amount) {
-    els.amount.focus();
-    return;
-  }
+  if (!amount) { els.amount.focus(); return; }
   const date = els.date.value || isoToday();
-  if (hasDuplicate(amount, date) && !confirm("Tą pačią dieną jau yra tokia pati suma. Vis tiek pridėti?")) {
-    return;
-  }
-
-  state.records.push({
-    id: crypto.randomUUID(),
-    amount,
-    date,
-    note: els.note.value.trim(),
-    createdAt: new Date().toISOString()
-  });
-
-  filters.year = date.slice(0, 4);
-  filters.month = "";
-  filters.query = "";
-  els.amount.value = "";
-  els.note.value = "";
-  saveState();
-  render();
-  showToast("Įrašas pridėtas.");
-  els.amount.focus();
+  if (state.records.some((record) => record.date === date && Math.abs(record.amount - amount) < 0.01) && !confirm("Tą pačią dieną jau yra tokia pati suma. Vis tiek pridėti?")) return;
+  state.records.push({ id: crypto.randomUUID(), amount, date, note: els.note.value.trim(), createdAt: new Date().toISOString() });
+  filters = { query: "", year: date.slice(0, 4), month: "" };
+  els.amount.value = ""; els.note.value = ""; saveState(); render(); showToast("Įrašas pridėtas."); els.amount.focus();
 }
-
-function openEditDialog(recordId) {
-  const record = state.records.find((item) => item.id === recordId);
-  if (!record) return;
-  editingRecordId = recordId;
-  els.editAmount.value = String(record.amount).replace(".", ",");
-  els.editDate.value = record.date;
-  els.editNote.value = record.note || "";
-  els.editMessage.textContent = "";
-  els.editDialog.showModal();
-  els.editAmount.focus();
-}
-
-function saveEditedRecord() {
-  const amount = parseAmount(els.editAmount.value);
-  if (!amount) {
-    els.editMessage.textContent = "Įvesk teisingą sumą.";
-    els.editAmount.focus();
-    return;
-  }
-  const record = state.records.find((item) => item.id === editingRecordId);
-  if (!record) return;
-  record.amount = amount;
-  record.date = els.editDate.value || isoToday();
-  record.note = els.editNote.value.trim();
-  record.updatedAt = new Date().toISOString();
-  filters.year = record.date.slice(0, 4);
-  saveState();
-  render();
-  els.editDialog.close();
-  showToast("Įrašas atnaujintas.");
-}
-
-function openSettings() {
-  els.taxYear.value = state.settings.taxYear;
-  refreshPinStatus();
-  els.settingsDialog.showModal();
-}
-
-function saveSettings() {
-  state.settings = {
-    taxYear: Number(els.taxYear.value) || 2026
-  };
-  filters.year = String(state.settings.taxYear);
-  filters.month = "";
-  saveState();
-  render();
-  showToast("Nustatymai išsaugoti.");
-}
-
-function exportCsv() {
-  const header = ["data", "suma", "gpm", "psd", "vsd", "mokesciai_is_viso", "pastaba"];
-  const rows = filteredRecords()
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .map((record) => {
-      const calc = calculateForIncome(record.amount);
-      return [
-        record.date,
-        record.amount.toFixed(2),
-        calc.gpm.toFixed(2),
-        calc.psd.toFixed(2),
-        calc.vsd.toFixed(2),
-        calc.tax.toFixed(2),
-        `"${String(record.note || "").replaceAll('"', '""')}"`
-      ];
-    });
-  const csv = [header, ...rows].map((row) => row.join(",")).join("\n");
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = `mokesciai-${state.settings.taxYear}.csv`;
-  link.click();
-  URL.revokeObjectURL(url);
-  showToast(`CSV eksportas paruoštas: ${rows.length} ${recordWord(rows.length)}.`);
-}
-
-function downloadJson(filename, data) {
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
-}
-
-function exportBackup() {
-  meta.lastBackupAt = new Date().toISOString();
-  saveMeta();
-  downloadJson(`mokesciai-backup-${new Date().toISOString().slice(0, 10)}.json`, {
-    app: "tax-set-aside",
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    appVersion: APP_VERSION,
-    state
-  });
-  renderBackupStatus();
-  showToast("Atsarginė kopija sukurta.");
-}
-
-function validBackup(data) {
-  return data?.app === "tax-set-aside"
-    && data?.version === 1
-    && Array.isArray(data?.state?.records)
-    && data?.state?.settings;
-}
-
-function restoreBackup(file) {
-  if (!file) return;
-  const reader = new FileReader();
-  reader.addEventListener("load", () => {
-    try {
-      const data = JSON.parse(reader.result);
-      if (!validBackup(data)) throw new Error("Bad backup");
-      state = {
-        ...defaultState,
-        ...data.state,
-        settings: { ...defaultState.settings, ...data.state.settings },
-        records: data.state.records
-      };
-      state = sanitizeState(state);
-      saveState();
-      render();
-      els.settingsDialog.close();
-      showToast(`Kopija atkurta: ${state.records.length} ${recordWord(state.records.length)}.`);
-    } catch {
-      alert("Nepavyko atkurti kopijos. Patikrink, ar pasirinktas teisingas JSON failas.");
-    } finally {
-      els.restoreInput.value = "";
-    }
-  });
-  reader.readAsText(file);
-}
+function openEditDialog(id) { const record = state.records.find((item) => item.id === id); if (!record) return; editingRecordId = id; els.editAmount.value = String(record.amount).replace(".", ","); els.editDate.value = record.date; els.editNote.value = record.note || ""; els.editMessage.textContent = ""; els.editDialog.showModal(); els.editAmount.focus(); }
+function saveEditedRecord() { const record = state.records.find((item) => item.id === editingRecordId); const amount = parseAmount(els.editAmount.value); if (!record || !amount) { els.editMessage.textContent = "Įvesk teisingą sumą."; return; } record.amount = amount; record.date = els.editDate.value || isoToday(); record.note = els.editNote.value.trim(); record.updatedAt = new Date().toISOString(); filters.year = record.date.slice(0, 4); saveState(); render(); els.editDialog.close(); showToast("Įrašas atnaujintas."); }
+function openSettings() { els.taxYear.value = state.settings.taxYear; refreshPinStatus(); els.settingsDialog.showModal(); }
+function saveSettings() { state.settings.taxYear = Number(els.taxYear.value) || 2026; filters.year = String(state.settings.taxYear); filters.month = ""; saveState(); render(); showToast("Nustatymai išsaugoti."); }
+function exportCsv() { const rows = filteredRecords().sort((a, b) => a.date.localeCompare(b.date)).map((record) => { const c = calc(record.amount); return [record.date, record.amount.toFixed(2), c.gpm.toFixed(2), c.psd.toFixed(2), c.vsd.toFixed(2), c.tax.toFixed(2), `"${String(record.note || "").replaceAll('"', '""')}"`]; }); download(`mokesciai-${state.settings.taxYear}.csv`, [["data", "suma", "gpm", "psd", "vsd", "mokesciai_is_viso", "pastaba"], ...rows].map((row) => row.join(",")).join("\n"), "text/csv;charset=utf-8"); showToast(`CSV eksportas paruoštas: ${rows.length} ${recordWord(rows.length)}.`); }
+function download(filename, content, type) { const url = URL.createObjectURL(new Blob([content], { type })); const link = document.createElement("a"); link.href = url; link.download = filename; link.click(); URL.revokeObjectURL(url); }
+function exportBackup() { meta.lastBackupAt = new Date().toISOString(); saveMeta(); download(`mokesciai-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify({ app: "tax-set-aside", version: 1, exportedAt: new Date().toISOString(), appVersion: APP_VERSION, state }, null, 2), "application/json;charset=utf-8"); renderBackupStatus(); showToast("Atsarginė kopija sukurta."); }
+function restoreBackup(file) { if (!file) return; const reader = new FileReader(); reader.addEventListener("load", () => { try { const data = JSON.parse(reader.result); if (data?.app !== "tax-set-aside" || data?.version !== 1 || !Array.isArray(data?.state?.records)) throw new Error(); state = sanitize(data.state); saveState(); render(); els.settingsDialog.close(); showToast(`Kopija atkurta: ${state.records.length} ${recordWord(state.records.length)}.`); } catch { alert("Nepavyko atkurti kopijos. Patikrink, ar pasirinktas teisingas JSON failas."); } finally { els.restoreInput.value = ""; } }); reader.readAsText(file); }
+function updateConnectionStatus() { els.connectionStatus.textContent = navigator.onLine ? "Online" : "Offline"; els.connectionStatus.classList.toggle("offline", !navigator.onLine); }
 
 els.date.value = isoToday();
 els.versionText.textContent = `Versija ${APP_VERSION}`;
-saveState();
-refreshPinStatus();
-updateConnectionStatus();
-showLockIfNeeded();
 els.unlockButton.addEventListener("click", unlock);
-els.pinInput.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") unlock();
-});
+els.pinInput.addEventListener("keydown", (event) => { if (event.key === "Enter") unlock(); });
 els.amount.addEventListener("input", updatePreview);
+els.amount.addEventListener("keydown", (event) => { if (event.key === "Enter") addRecord(); });
 els.addButton.addEventListener("click", addRecord);
-els.amount.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") addRecord();
-});
-els.todayButton.addEventListener("click", () => {
-  els.date.value = isoToday();
-  showToast("Data pakeista į šiandien.");
-});
-els.yesterdayButton.addEventListener("click", () => {
-  els.date.value = isoDaysAgo(1);
-  showToast("Data pakeista į vakar.");
-});
+els.todayButton.addEventListener("click", () => { els.date.value = isoToday(); showToast("Data pakeista į šiandien."); });
+els.yesterdayButton.addEventListener("click", () => { els.date.value = isoDaysAgo(1); showToast("Data pakeista į vakar."); });
 els.settingsButton.addEventListener("click", openSettings);
 els.aboutButton.addEventListener("click", () => els.aboutDialog.showModal());
+els.privacyButton.addEventListener("click", () => els.privacyDialog.showModal());
+els.finishOnboardingButton.addEventListener("click", finishOnboarding);
 els.whatsNewButton.addEventListener("click", () => els.whatsNewDialog.showModal());
 els.savePinButton.addEventListener("click", savePin);
 els.removePinButton.addEventListener("click", removePin);
 els.saveEditButton.addEventListener("click", saveEditedRecord);
-els.editAmount.addEventListener("keydown", (event) => {
-  if (event.key === "Enter") saveEditedRecord();
-});
+els.editAmount.addEventListener("keydown", (event) => { if (event.key === "Enter") saveEditedRecord(); });
 els.saveSettingsButton.addEventListener("click", saveSettings);
 els.exportButton.addEventListener("click", exportCsv);
-els.searchInput.addEventListener("input", () => {
-  filters.query = els.searchInput.value;
-  render();
-});
-els.yearFilter.addEventListener("change", () => {
-  filters.year = els.yearFilter.value;
-  render();
-});
-els.monthFilter.addEventListener("change", () => {
-  filters.month = els.monthFilter.value;
-  render();
-});
-els.clearFiltersButton.addEventListener("click", () => {
-  filters = {
-    query: "",
-    year: String(state.settings.taxYear),
-    month: ""
-  };
-  render();
-  showToast("Filtrai išvalyti.");
-});
+els.searchInput.addEventListener("input", () => { filters.query = els.searchInput.value; render(); });
+els.yearFilter.addEventListener("change", () => { filters.year = els.yearFilter.value; render(); });
+els.monthFilter.addEventListener("change", () => { filters.month = els.monthFilter.value; render(); });
+els.clearFiltersButton.addEventListener("click", () => { filters = { query: "", year: String(state.settings.taxYear), month: "" }; render(); showToast("Filtrai išvalyti."); });
 els.backupButton.addEventListener("click", exportBackup);
 els.restoreButton.addEventListener("click", () => els.restoreInput.click());
 els.restoreInput.addEventListener("change", () => restoreBackup(els.restoreInput.files[0]));
-els.recordList.addEventListener("click", (event) => {
-  const editButton = event.target.closest("[data-edit]");
-  if (editButton) {
-    openEditDialog(editButton.dataset.edit);
-    return;
-  }
-  const button = event.target.closest("[data-delete]");
-  if (!button) return;
-  if (!confirm("Ištrinti šį įrašą?")) return;
-  state.records = state.records.filter((record) => record.id !== button.dataset.delete);
-  saveState();
-  render();
-  showToast("Įrašas ištrintas.");
-});
-els.clearButton.addEventListener("click", () => {
-  if (!confirm("Išvalyti visus įrašus? Prieš tai verta pasidaryti atsarginę kopiją.")) return;
-  const answer = prompt("Įvesk ISVALYTI, jei tikrai nori pašalinti visus įrašus.");
-  if (answer !== "ISVALYTI") return;
-  state.records = [];
-  saveState();
-  render();
-  els.settingsDialog.close();
-  showToast("Duomenys išvalyti.");
-});
+els.recordList.addEventListener("click", (event) => { const edit = event.target.closest("[data-edit]"); const del = event.target.closest("[data-delete]"); if (edit) return openEditDialog(edit.dataset.edit); if (!del || !confirm("Ištrinti šį įrašą?")) return; state.records = state.records.filter((record) => record.id !== del.dataset.delete); saveState(); render(); showToast("Įrašas ištrintas."); });
+els.clearButton.addEventListener("click", () => { if (!confirm("Išvalyti visus įrašus? Prieš tai verta pasidaryti atsarginę kopiją.")) return; if (prompt("Įvesk ISVALYTI, jei tikrai nori pašalinti visus įrašus.") !== "ISVALYTI") return; state.records = []; saveState(); render(); els.settingsDialog.close(); showToast("Duomenys išvalyti."); });
+els.tabs.forEach((tab) => tab.addEventListener("click", () => { els.tabs.forEach((item) => item.classList.toggle("active", item === tab)); els.recordsView.hidden = tab.dataset.tab !== "records"; els.summaryView.hidden = tab.dataset.tab !== "summary"; els.monthsView.hidden = tab.dataset.tab !== "months"; }));
 window.addEventListener("online", updateConnectionStatus);
 window.addEventListener("offline", updateConnectionStatus);
-els.tabs.forEach((tab) => {
-  tab.addEventListener("click", () => {
-    els.tabs.forEach((item) => item.classList.toggle("active", item === tab));
-    els.recordsView.hidden = tab.dataset.tab !== "records";
-    els.summaryView.hidden = tab.dataset.tab !== "summary";
-    els.monthsView.hidden = tab.dataset.tab !== "months";
-  });
-});
-
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("sw.js").catch(() => {});
-}
-
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+updateConnectionStatus();
 render();
+showLockIfNeeded();
