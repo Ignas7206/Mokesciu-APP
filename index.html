@@ -20,7 +20,7 @@
       </div>
     </section>
 
-    <main class="app-shell" id="appShell">
+    <main class="app-shell" id="appShell" aria-hidden="true">
       <header class="topbar">
         <div>
           <p class="eyebrow">Individuali veikla</p>
@@ -33,6 +33,7 @@
       <div class="status-line">
         <span class="status-pill" id="connectionStatus">Prisijungta</span>
         <span class="status-pill subtle" id="storageStatus">Saugoma telefone</span>
+        <span class="status-pill subtle" id="securityStatus">PIN neįjungtas</span>
         <span class="status-pill subtle" id="backupReminder" hidden>Atsarginė kopija nekurta</span>
       </div>
 
@@ -201,6 +202,12 @@
           </div>
         </div>
 
+        <div class="settings-block">
+          <h3>Privatumas</h3>
+          <button class="text-button wide" id="privacyButton" type="button">Duomenys ir saugumas</button>
+          <p class="hint" id="securityDetail">PIN neįjungtas. Įjungus PIN, įrašai bus šifruojami šiame telefone.</p>
+        </div>
+
         <div class="backup-actions">
           <button class="text-button" id="backupButton" type="button">Atsarginė kopija</button>
           <button class="text-button" id="restoreButton" type="button">Atkurti kopiją</button>
@@ -215,24 +222,49 @@
             <input id="newPin" type="password" inputmode="numeric" autocomplete="new-password" maxlength="12" placeholder="Bent 4 skaičiai">
           </label>
           <div class="backup-actions">
-            <button class="text-button" id="savePinButton" type="button">Išsaugoti PIN</button>
+            <button class="text-button" id="savePinButton" type="button">Įjungti PIN</button>
             <button class="text-button danger" id="removePinButton" type="button">Išjungti PIN</button>
           </div>
-          <p class="hint" id="pinStatus">PIN neužstatytas.</p>
+          <p class="hint" id="pinStatus">PIN neįjungtas.</p>
         </div>
 
         <div class="settings-block">
           <h3>Informacija</h3>
-          <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
+          <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą</button>
           <button class="text-button wide" id="whatsNewButton" type="button">Kas naujo</button>
           <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
-          <p class="hint" id="versionText">Versija v0.4.0</p>
+          <p class="hint" id="versionText">Versija v0.5.0</p>
         </div>
 
         <div class="dialog-actions">
           <button class="text-button danger" id="clearButton" type="button">Išvalyti duomenis</button>
           <button class="primary-button" id="saveSettingsButton" value="default">Išsaugoti</button>
         </div>
+      </form>
+    </dialog>
+
+    <dialog class="settings-dialog" id="onboardingDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <h2>Pradžia</h2>
+          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
+        </div>
+        <div class="info-copy">
+          <p>Įrašai automatiškai saugomi šiame telefone. Programėlė veikia ir be interneto.</p>
+          <p>PIN galima įjungti nustatymuose. Tada įrašai šiame telefone bus šifruojami.</p>
+          <p>Debesies sinchronizavimą galėsime prijungti vėliau kaip pasirenkamą funkciją.</p>
+        </div>
+        <div class="field-row">
+          <label>
+            Skaičiavimo metai
+            <input id="onboardingTaxYear" type="number" min="2026" max="2100" step="1">
+          </label>
+        </div>
+        <label class="toggle">
+          <input id="onboardingPinChoice" type="checkbox">
+          Noriu įjungti PIN vėliau
+        </label>
+        <button class="primary-button" id="finishOnboardingButton" type="button">Pradėti</button>
       </form>
     </dialog>
 
@@ -245,8 +277,22 @@
         <div class="info-copy">
           <p>Programėlė skirta individualios veiklos pajamų įrašams ir preliminariam mokesčių atsidėjimui.</p>
           <p>Šiuo metu naudojamas 30% išlaidų modelis. GPM, PSD ir VSD rodomi atskirai, kad būtų aišku, kiek atsidėti nuo gautos sumos.</p>
-          <p>Duomenys automatiškai saugomi šiame telefone. Kol neprijungtas debesis, jie nesiunčiami į serverį. Atsarginei kopijai galima naudoti JSON eksportą nustatymuose.</p>
           <p>Skaičiavimas yra preliminarus ir nepakeičia buhalterio ar VMI konsultacijos.</p>
+        </div>
+        <button class="primary-button" value="default">Supratau</button>
+      </form>
+    </dialog>
+
+    <dialog class="settings-dialog" id="privacyDialog">
+      <form method="dialog">
+        <div class="dialog-head">
+          <h2>Duomenys ir saugumas</h2>
+          <button class="icon-button" value="cancel" aria-label="Uždaryti" title="Uždaryti">×</button>
+        </div>
+        <div class="info-copy">
+          <p>Įrašai automatiškai saugomi šiame telefone. Kol neprijungtas debesis, jie nesiunčiami į serverį.</p>
+          <p id="privacyPinText">PIN neįjungtas. Įjungus PIN, įrašai bus šifruojami šiame įrenginyje.</p>
+          <p>Jei pamirši PIN, šifruotų įrašų atkurti nepavyks. Atsarginė JSON kopija lieka papildomas saugiklis.</p>
         </div>
         <button class="primary-button" value="default">Supratau</button>
       </form>
@@ -289,6 +335,7 @@
           <p>Įvestyje atsirado greiti datos mygtukai ir įspėjimas apie galimą dublikatą.</p>
           <p>Pridėtas offline indikatorius ir saugesnis visų duomenų išvalymas.</p>
           <p>Aiškiau rodoma, kad įrašai automatiškai saugomi telefone, o debesis bus pasirenkamas vėliau.</p>
+          <p>Pridėtas pirmo paleidimo ekranas, duomenų saugumo langas ir PIN šifravimas telefone.</p>
         </div>
         <button class="primary-button" value="default">Gerai</button>
       </form>
