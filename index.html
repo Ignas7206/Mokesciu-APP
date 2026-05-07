@@ -91,6 +91,40 @@
           <h2>Įrašai</h2>
           <button class="text-button" id="exportButton" type="button">CSV</button>
         </div>
+        <div class="filter-panel" aria-label="Įrašų filtrai">
+          <label>
+            Paieška
+            <input id="searchInput" type="search" autocomplete="off" placeholder="Pastaba, klientas, suma">
+          </label>
+          <div class="filter-row">
+            <label>
+              Metai
+              <select id="yearFilter"></select>
+            </label>
+            <label>
+              Mėnuo
+              <select id="monthFilter">
+                <option value="">Visi mėnesiai</option>
+                <option value="01">Sausis</option>
+                <option value="02">Vasaris</option>
+                <option value="03">Kovas</option>
+                <option value="04">Balandis</option>
+                <option value="05">Gegužė</option>
+                <option value="06">Birželis</option>
+                <option value="07">Liepa</option>
+                <option value="08">Rugpjūtis</option>
+                <option value="09">Rugsėjis</option>
+                <option value="10">Spalis</option>
+                <option value="11">Lapkritis</option>
+                <option value="12">Gruodis</option>
+              </select>
+            </label>
+          </div>
+          <div class="filter-actions">
+            <span id="filteredCount">0 įrašų</span>
+            <button class="text-button" id="clearFiltersButton" type="button">Išvalyti filtrus</button>
+          </div>
+        </div>
         <div class="empty-state" id="emptyState">Įvesk pirmą gautą sumą.</div>
         <div class="record-list" id="recordList"></div>
       </section>
@@ -102,10 +136,16 @@
         <div class="detail-grid">
           <article class="detail-row"><span>Bendros pajamos</span><strong id="totalIncome">0,00 €</strong></article>
           <article class="detail-row"><span>Bendri mokesčiai</span><strong id="totalTax">0,00 €</strong></article>
+          <article class="detail-row"><span>Apmokestinamos pajamos</span><strong id="totalProfit">0,00 €</strong></article>
+          <article class="detail-row"><span>Sodros bazė</span><strong id="totalSocialBase">0,00 €</strong></article>
           <article class="detail-row"><span>GPM</span><strong id="totalGpm">0,00 €</strong></article>
           <article class="detail-row"><span>PSD</span><strong id="totalPsd">0,00 €</strong></article>
           <article class="detail-row"><span>VSD</span><strong id="totalVsd">0,00 €</strong></article>
           <article class="detail-row"><span>Po mokesčių</span><strong id="totalNet">0,00 €</strong></article>
+          <article class="detail-row"><span>Įrašų skaičius</span><strong id="recordCount">0</strong></article>
+          <article class="detail-row"><span>Aktyvūs mėnesiai</span><strong id="activeMonths">0</strong></article>
+          <article class="detail-row"><span>Vidutiniškai per mėn.</span><strong id="averageMonth">0,00 €</strong></article>
+          <article class="detail-row"><span>Didžiausias mokėjimas</span><strong id="largestRecord">0,00 €</strong></article>
         </div>
       </section>
 
@@ -159,7 +199,7 @@
           <h3>Informacija</h3>
           <button class="text-button wide" id="aboutButton" type="button">Apie skaičiavimą ir privatumą</button>
           <p class="hint">Priminti vėliau: pridėti realių išlaidų režimą ir PVM mokėtojo nustatymus.</p>
-          <p class="hint" id="versionText">Versija v0.1.0</p>
+          <p class="hint" id="versionText">Versija v0.2.0</p>
         </div>
 
         <div class="dialog-actions">
