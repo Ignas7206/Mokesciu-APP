@@ -1,4 +1,4 @@
-const CACHE_NAME = "tax-set-aside-v7";
+const CACHE_NAME = "tax-set-aside-v8";
 const ASSETS = ["./", "index.html", "styles.css", "app.js", "manifest.webmanifest", "icon.svg"];
 
 self.addEventListener("install", (event) => {
